@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name="Anime")
+@Table
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -14,9 +14,9 @@ public class Anime {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private Integer score;
-    private Boolean watched;
+    private Integer score = -1;
+    private Boolean watched = false;
 }

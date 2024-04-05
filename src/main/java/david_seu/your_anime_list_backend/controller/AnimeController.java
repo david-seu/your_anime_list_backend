@@ -1,8 +1,7 @@
 package david_seu.your_anime_list_backend.controller;
 
 import david_seu.your_anime_list_backend.dto.AnimeDto;
-import david_seu.your_anime_list_backend.model.Anime;
-import david_seu.your_anime_list_backend.repo.IAnimeRepo;
+import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,11 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/anime")
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 public class AnimeController {
 
     private AnimeService animeService;
@@ -33,8 +32,14 @@ public class AnimeController {
 
     @GetMapping("/getAnimeById/{id}")
     public ResponseEntity<AnimeDto> getAnimeById(@PathVariable("id") Long animeId){
-        AnimeDto animeDto = animeService.getAnimeById(animeId);
-        return new ResponseEntity<>(animeDto, HttpStatus.OK);
+        try {
+            AnimeDto animeDto = animeService.getAnimeById(animeId);
+            return new ResponseEntity<>(animeDto, HttpStatus.OK);
+        }
+        catch (ResourceNotFoundException e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/addAnime")
@@ -47,15 +52,27 @@ public class AnimeController {
     @PatchMapping("/updateAnimeById/{id}")
     public ResponseEntity<AnimeDto> updateAnimeById(@PathVariable("id") Long animeId, @RequestBody AnimeDto updatedAnime)
     {
-        AnimeDto animeDto = animeService.updateAnime(animeId, updatedAnime);
+        AnimeDto animeDto;
+        try {
+            animeDto = animeService.updateAnime(animeId, updatedAnime);
+        }
+        catch (ResourceNotFoundException e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(animeDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteAnimeById/{id}")
     public ResponseEntity<HttpStatus> deleteBookById(@PathVariable("id") Long animeId)
     {
-        animeService.deleteAnime(animeId);
-
+        try {
+            animeService.deleteAnime(animeId);
+        }
+        catch(ResourceNotFoundException e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
