@@ -19,4 +19,6 @@ public class Anime {
     private String title;
     private Integer score = -1;
     private Boolean watched = false;
+    private Boolean persisted = false;
+
 }

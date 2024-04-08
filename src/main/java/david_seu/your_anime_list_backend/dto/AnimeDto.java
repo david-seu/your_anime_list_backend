@@ -20,4 +20,6 @@ public class AnimeDto {
 
     private Boolean watched;
 
+    private Boolean persisted;
+
 }

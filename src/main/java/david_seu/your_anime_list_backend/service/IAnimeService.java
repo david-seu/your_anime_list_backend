@@ -15,4 +15,6 @@ public interface IAnimeService {
 
     void deleteAnime(Long animeId);
 
+    AnimeDto createAnime();
+
 }

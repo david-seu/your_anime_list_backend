@@ -6,6 +6,10 @@ import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +21,13 @@ import java.util.List;
 public class AnimeController {
 
     private AnimeService animeService;
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @GetMapping("/status")
+    public ResponseEntity<String> getStatus(){
+        return new ResponseEntity<>("Running", HttpStatus.OK);
+    }
+
     @GetMapping("/getAllAnime")
     public ResponseEntity<List<AnimeDto>> getAllAnime(){
         try{
@@ -74,5 +85,19 @@ public class AnimeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @MessageMapping("/anime")
+    @SendTo("/topic/anime")
+    public AnimeDto broadcastAnime(AnimeDto animeDto) {
+        return animeDto;
+    }
+
+    @PostMapping("/createAnime")
+    @Scheduled(fixedRate = 15000)
+    public ResponseEntity<AnimeDto> createAnime(){
+        AnimeDto animeDto = animeService.createAnime();
+        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
+        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
     }
 }

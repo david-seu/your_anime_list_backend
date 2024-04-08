@@ -8,10 +8,8 @@ import david_seu.your_anime_list_backend.repo.IAnimeRepo;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -57,8 +55,22 @@ public class AnimeService implements IAnimeService {
 
     @Override
     public void deleteAnime(Long animeId) {
-        Anime anime = animeRepo.findById(animeId).orElseThrow(() -> new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
+        animeRepo.findById(animeId).orElseThrow(() -> new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
 
         animeRepo.deleteById(animeId);
     }
+
+    @Override
+    public AnimeDto createAnime() {
+        Anime anime = new Anime(null,
+                "Naruto",
+                8,
+                true,
+                true
+        );
+        Anime savedAnime = animeRepo.save(anime);
+        return AnimeMapper.mapToAnimeDto(savedAnime);
+    }
+
+
 }
