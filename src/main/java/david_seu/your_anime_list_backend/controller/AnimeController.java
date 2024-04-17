@@ -2,6 +2,7 @@ package david_seu.your_anime_list_backend.controller;
 
 import david_seu.your_anime_list_backend.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
+import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class AnimeController {
 
-    private AnimeService animeService;
+    private IAnimeService animeService;
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/status")
@@ -29,19 +30,26 @@ public class AnimeController {
     }
 
     @GetMapping("/getAllAnime")
-    public ResponseEntity<List<AnimeDto>> getAllAnime(){
-        try{
+    public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false) String sort) {
+        try {
             List<AnimeDto> animeList = animeService.getAllAnime();
-            if(animeList.isEmpty()) {
+            if (animeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
+
+            if(sort.equals("DESC"))
+            {
+                animeList = animeList.reversed();
+            }
+
             return new ResponseEntity<>(animeList, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getAnimeById/{id}")
+
+    @GetMapping("/getAnime/{id}")
     public ResponseEntity<AnimeDto> getAnimeById(@PathVariable("id") Long animeId){
         try {
             AnimeDto animeDto = animeService.getAnimeById(animeId);
@@ -60,7 +68,7 @@ public class AnimeController {
         return new ResponseEntity<>(saveAnimeDto, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/updateAnimeById/{id}")
+    @PatchMapping("/updateAnime/{id}")
     public ResponseEntity<AnimeDto> updateAnimeById(@PathVariable("id") Long animeId, @RequestBody AnimeDto updatedAnime)
     {
         AnimeDto animeDto;
@@ -74,7 +82,7 @@ public class AnimeController {
         return new ResponseEntity<>(animeDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteAnimeById/{id}")
+    @DeleteMapping("/deleteAnime/{id}")
     public ResponseEntity<HttpStatus> deleteBookById(@PathVariable("id") Long animeId)
     {
         try {
@@ -87,17 +95,18 @@ public class AnimeController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @MessageMapping("/anime")
-    @SendTo("/topic/anime")
-    public AnimeDto broadcastAnime(AnimeDto animeDto) {
-        return animeDto;
-    }
-
-    @PostMapping("/createAnime")
-    @Scheduled(fixedRate = 15000)
-    public ResponseEntity<AnimeDto> createAnime(){
-        AnimeDto animeDto = animeService.createAnime();
-        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
-        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
-    }
+//
+//    @MessageMapping("/anime")
+//    @SendTo("/topic/anime")
+//    public AnimeDto broadcastAnime(AnimeDto animeDto) {
+//        return animeDto;
+//    }
+//
+//    @PostMapping("/createAnime")
+//    @Scheduled(fixedRate = 15000)
+//    public ResponseEntity<AnimeDto> createAnime(){
+//        AnimeDto animeDto = animeService.createAnime();
+//        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
+//        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
+//    }
 }

@@ -9,6 +9,9 @@ import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +40,9 @@ public class AnimeService implements IAnimeService {
     @Override
     public List<AnimeDto> getAllAnime() {
         List<Anime> animeList = animeRepo.findAll();
-        return animeList.stream().map(AnimeMapper::mapToAnimeDto).collect(Collectors.toList());
+        return animeList.stream().map(AnimeMapper::mapToAnimeDto).sorted(Comparator.comparing(AnimeDto::getScore)).collect(Collectors.toList());
     }
+
 
     @Override
     public AnimeDto updateAnime(Long animeId, AnimeDto updatedAnime) {
@@ -65,11 +69,22 @@ public class AnimeService implements IAnimeService {
         Anime anime = new Anime(null,
                 "Naruto",
                 8,
-                true,
                 true
         );
+
         Anime savedAnime = animeRepo.save(anime);
         return AnimeMapper.mapToAnimeDto(savedAnime);
+    }
+
+    @Override
+    public AnimeDto getAnimeByTitle(String title) {
+        List<Anime> animeList = animeRepo.findAll();
+        for (Anime anime : animeList) {
+            if (anime.getTitle().equals(title)) {
+                return AnimeMapper.mapToAnimeDto(anime);
+            }
+        }
+        throw new ResourceNotFoundException("Anime does not exist with given title: " + title);
     }
 
 

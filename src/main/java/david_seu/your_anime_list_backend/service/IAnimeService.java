@@ -17,4 +17,6 @@ public interface IAnimeService {
 
     AnimeDto createAnime();
 
+    AnimeDto getAnimeByTitle(String title);
+
 }

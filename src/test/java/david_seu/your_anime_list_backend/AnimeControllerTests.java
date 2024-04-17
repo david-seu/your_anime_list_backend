@@ -36,7 +36,7 @@ public class AnimeControllerTests {
         AnimeDto animeDto = new AnimeDto();
         when(animeService.getAllAnime()).thenReturn(List.of(animeDto));
 
-        ResponseEntity<List<AnimeDto>> response = animeController.getAllAnime();
+        ResponseEntity<List<AnimeDto>> response = animeController.getAllAnime("");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, Objects.requireNonNull(response.getBody()).size());
@@ -47,14 +47,14 @@ public class AnimeControllerTests {
     public void testGetAllAnimeEmpty() {
         when(animeService.getAllAnime()).thenReturn(List.of());
 
-        ResponseEntity<List<AnimeDto>> response = animeController.getAllAnime();
+        ResponseEntity<List<AnimeDto>> response = animeController.getAllAnime("");
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(animeService, times(1)).getAllAnime();
     }
 
     @Test
-    public void testGetAnimeById() {
+    public void testGetAnime() {
         AnimeDto animeDto = new AnimeDto();
         when(animeService.getAnimeById(anyLong())).thenReturn(animeDto);
 
@@ -65,7 +65,7 @@ public class AnimeControllerTests {
     }
 
     @Test
-    public void testGetAnimeByIdNotFound() {
+    public void testGetAnimeNotFound() {
         when(animeService.getAnimeById(anyLong())).thenThrow(new ResourceNotFoundException("Not found"));
 
         ResponseEntity<AnimeDto> response = animeController.getAnimeById(1L);
@@ -86,7 +86,7 @@ public class AnimeControllerTests {
     }
 
     @Test
-    public void testUpdateAnimeById() {
+    public void testUpdateAnime() {
         AnimeDto animeDto = new AnimeDto();
         when(animeService.updateAnime(anyLong(), any(AnimeDto.class))).thenReturn(animeDto);
 
@@ -97,7 +97,7 @@ public class AnimeControllerTests {
     }
 
     @Test
-    public void testUpdateAnimeByIdNotFound() {
+    public void testUpdateAnimeNotFound() {
         when(animeService.updateAnime(anyLong(), any(AnimeDto.class))).thenThrow(new ResourceNotFoundException("Not found"));
 
         ResponseEntity<AnimeDto> response = animeController.updateAnimeById(1L, new AnimeDto());
@@ -107,7 +107,7 @@ public class AnimeControllerTests {
     }
 
     @Test
-    public void testDeleteAnimeById() {
+    public void testDeleteAnime() {
         doNothing().when(animeService).deleteAnime(anyLong());
 
         ResponseEntity<HttpStatus> response = animeController.deleteBookById(1L);
@@ -117,7 +117,7 @@ public class AnimeControllerTests {
     }
 
     @Test
-    public void testDeleteAnimeByIdNotFound() {
+    public void testDeleteAnimeNotFound() {
         doThrow(new ResourceNotFoundException("Not found")).when(animeService).deleteAnime(anyLong());
 
         ResponseEntity<HttpStatus> response = animeController.deleteBookById(1L);
