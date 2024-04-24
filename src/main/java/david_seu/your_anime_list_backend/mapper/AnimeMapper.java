@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 public class AnimeMapper {
 
-    public static AnimeDto mapToAnimeDto(Anime anime){
-        return new AnimeDto(anime.getId(), anime.getTitle(), anime.getScore(), anime.getWatched());
+    public static AnimeDto mapToAnimeDto(Anime anime, Integer numEpisodes){
+        return new AnimeDto(anime.getId(), anime.getTitle(), anime.getScore(), anime.getWatched(), numEpisodes);
     }
 
     public static Anime mapToAnime(AnimeDto animeDto){

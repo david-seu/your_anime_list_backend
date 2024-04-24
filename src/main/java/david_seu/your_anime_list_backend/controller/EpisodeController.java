@@ -28,9 +28,9 @@ public class EpisodeController {
     }
 
     @GetMapping("/getAllEpisodes")
-    public ResponseEntity<List<EpisodeDto>> getAllEpisodes(){
+    public ResponseEntity<List<EpisodeDto>> getAllEpisodes(@RequestParam(required = false, defaultValue = "0") Integer page){
         try{
-            List<EpisodeDto> episodeList = episodeService.getAllEpisodes();
+            List<EpisodeDto> episodeList = episodeService.getAllEpisodes(page);
             if(episodeList.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }

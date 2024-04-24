@@ -22,4 +22,7 @@ public class AnimeDto {
     private Integer score;
 
     private Boolean watched;
+
+    private Integer numEpisodes;
+
 }

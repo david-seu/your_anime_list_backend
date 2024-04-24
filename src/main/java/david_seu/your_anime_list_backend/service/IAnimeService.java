@@ -9,7 +9,7 @@ public interface IAnimeService {
 
     AnimeDto getAnimeById(Long animeId);
 
-    List<AnimeDto> getAllAnime();
+    List<AnimeDto> getAllAnime(Integer page);
 
     AnimeDto updateAnime(Long animeId, AnimeDto updatedAnime);
 
@@ -18,5 +18,4 @@ public interface IAnimeService {
     AnimeDto createAnime();
 
     AnimeDto getAnimeByTitle(String title);
-
 }

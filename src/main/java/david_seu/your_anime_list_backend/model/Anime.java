@@ -21,9 +21,7 @@ public class Anime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
     private String title;
     private Integer score = -1;
     private Boolean watched = false;
-//    private Boolean persisted = false;
 }

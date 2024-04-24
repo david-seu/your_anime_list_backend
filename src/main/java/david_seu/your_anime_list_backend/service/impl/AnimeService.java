@@ -4,15 +4,15 @@ import david_seu.your_anime_list_backend.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.AnimeMapper;
 import david_seu.your_anime_list_backend.model.Anime;
+import david_seu.your_anime_list_backend.model.CustomFaker;
 import david_seu.your_anime_list_backend.repo.IAnimeRepo;
+import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -21,12 +21,13 @@ import java.util.stream.Collectors;
 public class AnimeService implements IAnimeService {
 
     private IAnimeRepo animeRepo;
+    private IEpisodeRepo episodeRepo;
 
     @Override
     public AnimeDto createAnime(AnimeDto animeDto) {
         Anime anime = AnimeMapper.mapToAnime(animeDto);
         Anime savedAnime = animeRepo.save(anime);
-        return AnimeMapper.mapToAnimeDto(savedAnime);
+        return AnimeMapper.mapToAnimeDto(savedAnime, 0);
     }
 
     @Override
@@ -34,13 +35,23 @@ public class AnimeService implements IAnimeService {
         Anime anime = animeRepo.findById(animeId).
                 orElseThrow(() ->
                         new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
-        return AnimeMapper.mapToAnimeDto(anime);
+        Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
+        return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
     }
 
     @Override
-    public List<AnimeDto> getAllAnime() {
-        List<Anime> animeList = animeRepo.findAll();
-        return animeList.stream().map(AnimeMapper::mapToAnimeDto).sorted(Comparator.comparing(AnimeDto::getScore)).collect(Collectors.toList());
+    public List<AnimeDto> getAllAnime(Integer page){
+        Integer totalPages = animeRepo.findAll(PageRequest.of(0,10)).getTotalPages();
+        if(page < 0){
+            page = totalPages - page;
+        }
+        int pageToGet = page % totalPages;
+        List<Anime> animeList = animeRepo.findAll(PageRequest.of(pageToGet,10)).getContent();
+//        return animeList.stream().map(AnimeMapper::mapToAnimeDto).sorted(Comparator.comparing(AnimeDto::getScore)).collect(Collectors.toList());
+        return animeList.stream().map((anime) -> {
+            Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
+            return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
+        }).collect(Collectors.toList());
     }
 
 
@@ -54,7 +65,9 @@ public class AnimeService implements IAnimeService {
 
         Anime updatedAnimeObj = animeRepo.save(anime);
 
-        return AnimeMapper.mapToAnimeDto(updatedAnimeObj);
+        Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
+
+        return AnimeMapper.mapToAnimeDto(updatedAnimeObj, numEpisodes);
     }
 
     @Override
@@ -73,19 +86,29 @@ public class AnimeService implements IAnimeService {
         );
 
         Anime savedAnime = animeRepo.save(anime);
-        return AnimeMapper.mapToAnimeDto(savedAnime);
+        return AnimeMapper.mapToAnimeDto(savedAnime, 0);
     }
 
     @Override
     public AnimeDto getAnimeByTitle(String title) {
         List<Anime> animeList = animeRepo.findAll();
         for (Anime anime : animeList) {
-            if (anime.getTitle().equals(title)) {
-                return AnimeMapper.mapToAnimeDto(anime);
+            if (anime.getTitle().toLowerCase().strip().equals(title.toLowerCase().strip())) {
+                return AnimeMapper.mapToAnimeDto(anime, 0);
             }
         }
         throw new ResourceNotFoundException("Anime does not exist with given title: " + title);
     }
+    
+//    @Override
+//    public AnimeDto getRandomAnime() {
+//        List<Anime> animeList = animeRepo.findAll();
+//        if (animeList.isEmpty()) {
+//            throw new ResourceNotFoundException("No animes found");
+//        }
+//        Anime randomAnime = animeList.get(new Random().nextInt(animeList.size()));
+//        return AnimeMapper.mapToAnimeDto(randomAnime);
+//    }
 
 
 }

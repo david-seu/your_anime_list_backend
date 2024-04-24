@@ -30,9 +30,9 @@ public class AnimeController {
     }
 
     @GetMapping("/getAllAnime")
-    public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false) String sort) {
+    public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false) String sort, @RequestParam(required = false, defaultValue = "0") Integer page){
         try {
-            List<AnimeDto> animeList = animeService.getAllAnime();
+            List<AnimeDto> animeList = animeService.getAllAnime(page);
             if (animeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }

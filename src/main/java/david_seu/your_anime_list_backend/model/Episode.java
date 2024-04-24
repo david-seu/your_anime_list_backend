@@ -25,7 +25,7 @@ public class Episode {
         private Integer season;
         private Integer score = -1;
         private Boolean watched = false;
-//      private Boolean persisted = false;
+
         @ManyToOne
         @JoinColumn(name = "anime_id", nullable = false, referencedColumnName = "id")
         @OnDelete(action = OnDeleteAction.CASCADE)

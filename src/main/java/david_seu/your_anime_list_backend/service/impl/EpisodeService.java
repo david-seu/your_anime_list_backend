@@ -4,10 +4,12 @@ import david_seu.your_anime_list_backend.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.EpisodeMapper;
 import david_seu.your_anime_list_backend.model.Anime;
+import david_seu.your_anime_list_backend.model.CustomFaker;
 import david_seu.your_anime_list_backend.model.Episode;
 import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
 import david_seu.your_anime_list_backend.service.IEpisodeService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -34,9 +36,14 @@ public class EpisodeService implements IEpisodeService {
     }
 
     @Override
-    public List<EpisodeDto> getAllEpisodes() {
-        List<Episode> episodeList = episodeRepo.findAll();
-        return episodeList.stream().map(EpisodeMapper::mapToEpisodeDto).sorted(Comparator.comparing(EpisodeDto::getScore)).collect(Collectors.toList());
+    public List<EpisodeDto> getAllEpisodes(Integer page) {
+        Integer totalPages = episodeRepo.findAll(PageRequest.of(0, 10)).getTotalPages();
+        if(page < 0){
+            page = totalPages - page;
+        }
+        int pageToGet = page % totalPages;
+        List<Episode> episodeList = episodeRepo.findAll(PageRequest.of(pageToGet, 10)).getContent();
+        return episodeList.stream().map(EpisodeMapper::mapToEpisodeDto).collect(Collectors.toList());
     }
 
     @Override

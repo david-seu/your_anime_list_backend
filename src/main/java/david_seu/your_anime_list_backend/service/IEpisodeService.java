@@ -11,12 +11,11 @@ public interface IEpisodeService {
 
     EpisodeDto getEpisodeById(Long episodeId);
 
-    List<EpisodeDto> getAllEpisodes();
+    List<EpisodeDto> getAllEpisodes(Integer page);
 
     EpisodeDto updateEpisode(Long episodeId, EpisodeDto updatedEpisode);
 
     void deleteEpisode(Long episodeId);
 
     List<EpisodeDto> getEpisodesByAnime(Anime anime);
-
 }
