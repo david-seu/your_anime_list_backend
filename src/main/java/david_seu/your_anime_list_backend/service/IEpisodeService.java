@@ -1,6 +1,6 @@
 package david_seu.your_anime_list_backend.service;
 
-import david_seu.your_anime_list_backend.dto.EpisodeDto;
+import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.model.Anime;
 
 import java.util.List;

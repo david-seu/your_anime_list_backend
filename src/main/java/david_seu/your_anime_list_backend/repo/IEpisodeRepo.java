@@ -1,6 +1,5 @@
 package david_seu.your_anime_list_backend.repo;
 
-import david_seu.your_anime_list_backend.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.model.Episode;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,19 +1,11 @@
 package david_seu.your_anime_list_backend.service.impl;
 
-import david_seu.your_anime_list_backend.dto.AnimeDto;
-import david_seu.your_anime_list_backend.dto.EpisodeDto;
-import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
-import david_seu.your_anime_list_backend.mapper.AnimeMapper;
-import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.model.CustomFaker;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.IEpisodeService;
 import david_seu.your_anime_list_backend.service.IFakeDataService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Random;
 
 
 @Service

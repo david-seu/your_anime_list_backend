@@ -1,7 +1,7 @@
 package david_seu.your_anime_list_backend.controller;
 
-import david_seu.your_anime_list_backend.dto.AnimeDto;
-import david_seu.your_anime_list_backend.dto.EpisodeDto;
+import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
+import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.AnimeMapper;
 import david_seu.your_anime_list_backend.service.IAnimeService;
@@ -21,11 +21,6 @@ public class EpisodeController {
 
     private IEpisodeService episodeService;
     private IAnimeService animeService;
-
-    @GetMapping("/status")
-    public ResponseEntity<String> getStatus(){
-        return ResponseEntity.ok("Running");
-    }
 
     @GetMapping("/getAllEpisodes")
     public ResponseEntity<List<EpisodeDto>> getAllEpisodes(@RequestParam(required = false, defaultValue = "0") Integer page){

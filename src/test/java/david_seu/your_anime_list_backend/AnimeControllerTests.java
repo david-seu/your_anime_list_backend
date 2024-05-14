@@ -1,7 +1,7 @@
 package david_seu.your_anime_list_backend;
 
 import david_seu.your_anime_list_backend.controller.AnimeController;
-import david_seu.your_anime_list_backend.dto.AnimeDto;
+import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import org.junit.jupiter.api.BeforeEach;

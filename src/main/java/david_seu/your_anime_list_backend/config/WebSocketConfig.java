@@ -1,4 +1,4 @@
-package david_seu.your_anime_list_backend.utils;
+package david_seu.your_anime_list_backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

@@ -1,16 +1,12 @@
 package david_seu.your_anime_list_backend.controller;
 
-import david_seu.your_anime_list_backend.dto.AnimeDto;
+import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.service.IAnimeService;
-import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,11 +19,6 @@ public class AnimeController {
 
     private IAnimeService animeService;
     private SimpMessagingTemplate simpMessagingTemplate;
-
-    @GetMapping("/status")
-    public ResponseEntity<String> getStatus(){
-        return new ResponseEntity<>("Running", HttpStatus.OK);
-    }
 
     @GetMapping("/getAllAnime")
     public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false) String sort, @RequestParam(required = false, defaultValue = "0") Integer page){

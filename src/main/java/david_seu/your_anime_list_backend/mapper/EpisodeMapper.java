@@ -1,9 +1,7 @@
 package david_seu.your_anime_list_backend.mapper;
 
-import david_seu.your_anime_list_backend.dto.AnimeDto;
-import david_seu.your_anime_list_backend.dto.EpisodeDto;
+import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.model.Episode;
-import david_seu.your_anime_list_backend.service.IEpisodeService;
 
 public class EpisodeMapper {
 

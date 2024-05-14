@@ -10,13 +10,13 @@ import lombok.*;
 @Setter
 @Getter
 @ToString
-public class Anime {
-
+public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
-    private Integer score = -1;
-    private Boolean watched = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ERole name;
 }

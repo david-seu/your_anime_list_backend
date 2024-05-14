@@ -1,8 +1,8 @@
 package david_seu.your_anime_list_backend;
 
 import david_seu.your_anime_list_backend.controller.EpisodeController;
-import david_seu.your_anime_list_backend.dto.AnimeDto;
-import david_seu.your_anime_list_backend.dto.EpisodeDto;
+import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
+import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import david_seu.your_anime_list_backend.service.impl.EpisodeService;
