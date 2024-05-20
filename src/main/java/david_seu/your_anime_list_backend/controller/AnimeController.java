@@ -1,12 +1,19 @@
 package david_seu.your_anime_list_backend.controller;
 
+import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
+import david_seu.your_anime_list_backend.payload.dto.UserDto;
+import david_seu.your_anime_list_backend.security.service.impl.UserDetailsImpl;
 import david_seu.your_anime_list_backend.service.IAnimeService;
+import david_seu.your_anime_list_backend.service.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,12 +25,17 @@ import java.util.List;
 public class AnimeController {
 
     private IAnimeService animeService;
+    private IUserService userService;
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("/getAllAnime")
-    public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false) String sort, @RequestParam(required = false, defaultValue = "0") Integer page){
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false, defaultValue = "DESC") String sort, @RequestParam(required = false, defaultValue = "0") Integer page) {
         try {
-            List<AnimeDto> animeList = animeService.getAllAnime(page);
+            UserDetailsImpl userDetails =
+                    (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = userService.getUserById(userDetails.getId());
+            List<AnimeDto> animeList = animeService.getAllAnime(page, user);
             if (animeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -31,6 +43,7 @@ public class AnimeController {
             if(sort.equals("DESC"))
             {
                 animeList = animeList.reversed();
+
             }
 
             return new ResponseEntity<>(animeList, HttpStatus.OK);
@@ -41,8 +54,10 @@ public class AnimeController {
 
 
     @GetMapping("/getAnime/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<AnimeDto> getAnimeById(@PathVariable("id") Long animeId){
         try {
+
             AnimeDto animeDto = animeService.getAnimeById(animeId);
             return new ResponseEntity<>(animeDto, HttpStatus.OK);
         }
@@ -53,16 +68,26 @@ public class AnimeController {
     }
 
     @PostMapping("/addAnime")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<AnimeDto> addAnime(@RequestBody AnimeDto animeDto)
     {
+        UserDetailsImpl userDetails =
+                (UserDetailsImpl) SecurityContextHolder.getContext().gUser user = userService.getUserById(userDetails.getId());etAuthentication().getPrincipal();
+        
+        animeDto.setUser(user);
         AnimeDto saveAnimeDto = animeService.createAnime(animeDto);
         return new ResponseEntity<>(saveAnimeDto, HttpStatus.CREATED);
     }
 
     @PatchMapping("/updateAnime/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<AnimeDto> updateAnimeById(@PathVariable("id") Long animeId, @RequestBody AnimeDto updatedAnime)
     {
         AnimeDto animeDto;
+        UserDetailsImpl userDetails =
+                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.getUserById(userDetails.getId());
+        updatedAnime.setUser(user);
         try {
             animeDto = animeService.updateAnime(animeId, updatedAnime);
         }
@@ -74,6 +99,7 @@ public class AnimeController {
     }
 
     @DeleteMapping("/deleteAnime/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<HttpStatus> deleteBookById(@PathVariable("id") Long animeId)
     {
         try {

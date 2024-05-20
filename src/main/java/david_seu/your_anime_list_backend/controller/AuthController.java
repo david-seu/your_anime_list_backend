@@ -1,8 +1,5 @@
 package david_seu.your_anime_list_backend.controller;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import david_seu.your_anime_list_backend.payload.dto.LoginDto;
 import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.payload.response.JwtResponse;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
@@ -27,19 +23,19 @@ public class AuthController {
 
     IUserService userService;
 
-    @PostMapping("/signin")
+    @PostMapping("/signIn")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginDto loginDto) {
 
-        JwtResponse jwt = userService.login(loginDto);
+        JwtResponse jwtResponse = userService.signIn(loginDto);
 
-        return ResponseEntity.ok(jwt);
+        return ResponseEntity.ok(jwtResponse);
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/signUp")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserDto userDto) {
 
         try{
-            UserDto user = userService.createUser(userDto);
+            UserDto user = userService.signUp(userDto);
             return ResponseEntity.ok(user);
         }
         catch (RuntimeException e){

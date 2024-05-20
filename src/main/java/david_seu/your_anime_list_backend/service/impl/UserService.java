@@ -1,5 +1,6 @@
 package david_seu.your_anime_list_backend.service.impl;
 
+import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.model.ERole;
 import david_seu.your_anime_list_backend.model.Role;
 import david_seu.your_anime_list_backend.payload.dto.LoginDto;
@@ -29,6 +30,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserService implements IUserService {
 
+
     AuthenticationManager authenticationManager;
 
     IUserRepo userRepo;
@@ -40,7 +42,7 @@ public class UserService implements IUserService {
     JwtUtils jwtUtils;
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserDto signUp(UserDto userDto) {
 
         if (userRepo.existsByUsername(userDto.getUsername())) {
             throw new RuntimeException("Error: Username is already taken!");
@@ -50,6 +52,7 @@ public class UserService implements IUserService {
             throw new RuntimeException("Error: Email is already in use!");
         }
 
+        userDto.setPassword(encoder.encode(userDto.getPassword()));
         User user = UserMapper.mapToUser(userDto);
 
         Set<String> strRoles = userDto.getRoles();
@@ -88,7 +91,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public JwtResponse login(LoginDto loginDto) {
+    public JwtResponse signIn(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
@@ -105,5 +108,11 @@ public class UserService implements IUserService {
                 userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles);
+    }
+
+    public User getUserById(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User not found."));
+        return user;
     }
 }

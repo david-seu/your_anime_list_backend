@@ -1,9 +1,11 @@
 package david_seu.your_anime_list_backend;
 
 import david_seu.your_anime_list_backend.controller.EpisodeController;
+import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
+import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.service.impl.AnimeService;
 import david_seu.your_anime_list_backend.service.impl.EpisodeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,23 +43,23 @@ public class EpisodeControllerTest {
     @Test
     public void testGetAllEpisodes() {
         EpisodeDto episodeDto = new EpisodeDto();
-        when(episodeService.getAllEpisodes(0)).thenReturn(List.of(episodeDto));
+        when(episodeService.getAllEpisodes(0, any(User.class))).thenReturn(List.of(episodeDto));
 
         ResponseEntity<List<EpisodeDto>> response = episodeController.getAllEpisodes(0);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, Objects.requireNonNull(response.getBody()).size());
-        verify(episodeService, times(1)).getAllEpisodes(0);
+        verify(episodeService, times(1)).getAllEpisodes(0, any(User.class));
     }
 
     @Test
     public void testGetAllEpisodesEmpty() {
-        when(episodeService.getAllEpisodes(0)).thenReturn(List.of());
+        when(episodeService.getAllEpisodes(0, any(User.class))).thenReturn(List.of());
 
         ResponseEntity<List<EpisodeDto>> response = episodeController.getAllEpisodes(0);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(episodeService, times(1)).getAllEpisodes(0);
+        verify(episodeService, times(1)).getAllEpisodes(0, any(User.class));
     }
 
     @Test

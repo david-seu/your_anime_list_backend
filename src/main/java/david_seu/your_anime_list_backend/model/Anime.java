@@ -19,4 +19,7 @@ public class Anime {
     private String title;
     private Integer score = -1;
     private Boolean watched = false;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 }

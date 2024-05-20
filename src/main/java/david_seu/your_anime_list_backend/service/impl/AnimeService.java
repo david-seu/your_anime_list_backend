@@ -1,11 +1,16 @@
 package david_seu.your_anime_list_backend.service.impl;
 
+import david_seu.your_anime_list_backend.mapper.UserMapper;
+import david_seu.your_anime_list_backend.model.ERole;
+import david_seu.your_anime_list_backend.model.Role;
+import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.AnimeMapper;
 import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.repo.IAnimeRepo;
 import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
+import david_seu.your_anime_list_backend.repo.IRoleRepo;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +26,7 @@ public class AnimeService implements IAnimeService {
 
     private IAnimeRepo animeRepo;
     private IEpisodeRepo episodeRepo;
+    private IRoleRepo roleRepo;
 
     @Override
     public AnimeDto createAnime(AnimeDto animeDto) {
@@ -39,13 +45,20 @@ public class AnimeService implements IAnimeService {
     }
 
     @Override
-    public List<AnimeDto> getAllAnime(Integer page){
-        Integer totalPages = animeRepo.findAll(PageRequest.of(0,10)).getTotalPages();
+    public List<AnimeDto> getAllAnime(Integer page, User user){
+        int size = animeRepo.findAllByUser(user).size();
+        if(size == 0){
+            return new ArrayList<>();
+        }
+        int totalPages = size / 10;
+        if(totalPages == 0){
+            totalPages = 1;
+        }
         if(page < 0){
             page = totalPages - page;
         }
         int pageToGet = page % totalPages;
-        List<Anime> animeList = animeRepo.findAnimeByOrderByScore(PageRequest.of(pageToGet,10));
+        List<Anime> animeList = animeRepo.findAllByUserOrderByScore(user, PageRequest.of(pageToGet,10));
         return animeList.stream().map((anime) -> {
             Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
             return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
@@ -74,17 +87,17 @@ public class AnimeService implements IAnimeService {
         animeRepo.deleteById(animeId);
     }
 
-    @Override
-    public AnimeDto createAnime() {
-        Anime anime = new Anime(null,
-                "Naruto",
-                8,
-                true
-        );
-
-        Anime savedAnime = animeRepo.save(anime);
-        return AnimeMapper.mapToAnimeDto(savedAnime, 0);
-    }
+//    @Override
+//    public AnimeDto createAnime() {
+//        Anime anime = new Anime(null,
+//                "Naruto",
+//                8,
+//                true
+//        );
+//
+//        Anime savedAnime = animeRepo.save(anime);
+//        return AnimeMapper.mapToAnimeDto(savedAnime, 0);
+//    }
 
     @Override
     public AnimeDto getAnimeByTitle(String title) {

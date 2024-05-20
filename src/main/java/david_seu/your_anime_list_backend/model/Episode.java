@@ -27,4 +27,8 @@ public class Episode {
         @JoinColumn(name = "anime_id", nullable = false, referencedColumnName = "id")
         @OnDelete(action = OnDeleteAction.CASCADE)
         private Anime anime;
+
+        @ManyToOne
+        @JoinColumn(name = "user_id", referencedColumnName = "id")
+        private User user;
 }

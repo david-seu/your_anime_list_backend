@@ -1,9 +1,12 @@
 package david_seu.your_anime_list_backend;
 
 import david_seu.your_anime_list_backend.controller.AnimeController;
+import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
+import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.service.impl.AnimeService;
+import org.hibernate.mapping.Any;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,23 +37,23 @@ public class AnimeControllerTests {
     @Test
     public void testGetAllAnime() {
         AnimeDto animeDto = new AnimeDto();
-        when(animeService.getAllAnime(0)).thenReturn(List.of(animeDto));
+        when(animeService.getAllAnime(0, any(User.class))).thenReturn(List.of(animeDto));
 
         ResponseEntity<List<AnimeDto>> response = animeController.getAllAnime("",0);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, Objects.requireNonNull(response.getBody()).size());
-        verify(animeService, times(1)).getAllAnime(0);
+        verify(animeService, times(1)).getAllAnime(0, any(User.class));
     }
 
     @Test
     public void testGetAllAnimeEmpty() {
-        when(animeService.getAllAnime(0)).thenReturn(List.of());
+        when(animeService.getAllAnime(0, any(User.class))).thenReturn(List.of());
 
         ResponseEntity<List<AnimeDto>> response = animeController.getAllAnime("",0);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(animeService, times(1)).getAllAnime(0);
+        verify(animeService, times(1)).getAllAnime(0, any(User.class));
     }
 
     @Test

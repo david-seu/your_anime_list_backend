@@ -1,5 +1,6 @@
 package david_seu.your_anime_list_backend.service;
 
+import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.model.Anime;
 
@@ -11,7 +12,7 @@ public interface IEpisodeService {
 
     EpisodeDto getEpisodeById(Long episodeId);
 
-    List<EpisodeDto> getAllEpisodes(Integer page);
+    List<EpisodeDto> getAllEpisodes(Integer page, User user);
 
     EpisodeDto updateEpisode(Long episodeId, EpisodeDto updatedEpisode);
 
