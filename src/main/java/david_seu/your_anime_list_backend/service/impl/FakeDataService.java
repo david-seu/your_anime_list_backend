@@ -1,6 +1,7 @@
 package david_seu.your_anime_list_backend.service.impl;
 
 import david_seu.your_anime_list_backend.model.CustomFaker;
+import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.IEpisodeService;
 import david_seu.your_anime_list_backend.service.IFakeDataService;
@@ -14,7 +15,6 @@ public class FakeDataService  implements IFakeDataService {
 
     IAnimeService animeService;
     IEpisodeService episodeService;
-
     @Override
     public void generateFakeData() {
         CustomFaker faker = new CustomFaker();

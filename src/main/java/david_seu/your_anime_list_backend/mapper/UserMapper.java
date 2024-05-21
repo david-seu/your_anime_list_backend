@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 public class UserMapper {
 
     public static User mapToUser(UserDto userDto){
-        return new User(userDto.getId(), userDto.getUsername(), userDto.getPassword(), userDto.getEmail(), new HashSet<>());
+        return new User(userDto.getId(), userDto.getUsername(), userDto.getPassword(), userDto.getEmail(), userDto.getEnabled(), new HashSet<>());
     }
 
     public static UserDto mapToUserDto(User user){
         Set<String> roles = user.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
-        return new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), roles);
+        return new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), user.getEnabled(), roles);
     }
 }

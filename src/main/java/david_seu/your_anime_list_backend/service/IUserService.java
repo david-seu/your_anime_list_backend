@@ -7,9 +7,18 @@ import david_seu.your_anime_list_backend.payload.response.JwtResponse;
 
 public interface IUserService {
 
-    UserDto signUp(UserDto userDto);
+    User signUp(UserDto userDto);
 
-    JwtResponse signIn(LoginDto loginDto);
+    User signIn(LoginDto loginDto);
 
     User getUserById(Long userId);
+
+    void verifyUser(String token);
+
+    void sendVerificationEmail(User user);
+
+    void sendLoginCode(User user);
+
+    JwtResponse verifyUser(Integer code);
+
 }

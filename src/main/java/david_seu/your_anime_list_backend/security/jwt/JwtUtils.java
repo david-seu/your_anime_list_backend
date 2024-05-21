@@ -26,6 +26,10 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
 
+        Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+
+        logger.info(authentication.getPrincipal().toString());
+
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
         return Jwts.builder()

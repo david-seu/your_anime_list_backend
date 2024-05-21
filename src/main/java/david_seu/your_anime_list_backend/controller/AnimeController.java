@@ -3,7 +3,6 @@ package david_seu.your_anime_list_backend.controller;
 import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
-import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.security.service.impl.UserDetailsImpl;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.IUserService;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -72,7 +70,9 @@ public class AnimeController {
     public ResponseEntity<AnimeDto> addAnime(@RequestBody AnimeDto animeDto)
     {
         UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().gUser user = userService.getUserById(userDetails.getId());etAuthentication().getPrincipal();
+                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User user = userService.getUserById(userDetails.getId());
         
         animeDto.setUser(user);
         AnimeDto saveAnimeDto = animeService.createAnime(animeDto);

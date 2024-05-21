@@ -39,6 +39,8 @@ public class User {
     @Email
     private String email;
 
+    private Boolean enabled = false;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

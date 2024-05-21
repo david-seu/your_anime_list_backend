@@ -1,14 +1,16 @@
 package david_seu.your_anime_list_backend.payload.response;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
-public class JwtResponse {
+public class JwtResponse implements Serializable {
     private String token;
     private String type = "Bearer";
     private Long id;

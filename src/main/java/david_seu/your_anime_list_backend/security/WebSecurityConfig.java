@@ -68,7 +68,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                                 .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/api/anime/**").permitAll()
                                 .requestMatchers("/api/episode/**").permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 );
 
         http.authenticationProvider(authenticationProvider());
