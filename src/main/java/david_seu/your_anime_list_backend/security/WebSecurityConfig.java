@@ -4,7 +4,6 @@ import david_seu.your_anime_list_backend.security.jwt.AuthEntryPointJwt;
 import david_seu.your_anime_list_backend.security.jwt.AuthTokenFilter;
 import david_seu.your_anime_list_backend.security.service.impl.UserDetailsService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -68,13 +67,13 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                                 .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/api/anime/**").permitAll()
                                 .requestMatchers("/api/episode/**").permitAll()
+                                .requestMatchers("/api/user/**").permitAll()
                                 .anyRequest().permitAll()
                 );
 
         http.authenticationProvider(authenticationProvider());
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 }

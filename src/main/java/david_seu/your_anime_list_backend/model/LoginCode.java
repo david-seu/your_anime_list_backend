@@ -23,7 +23,7 @@ public class LoginCode {
     @NonNull
     private Integer code;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
     @NonNull
     private User user;

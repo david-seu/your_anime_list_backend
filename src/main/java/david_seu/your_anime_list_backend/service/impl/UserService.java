@@ -14,8 +14,9 @@ import david_seu.your_anime_list_backend.security.jwt.JwtUtils;
 import david_seu.your_anime_list_backend.security.service.impl.UserDetailsImpl;
 import david_seu.your_anime_list_backend.service.IEmailService;
 import david_seu.your_anime_list_backend.service.IUserService;
-import lombok.AllArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,80 +26,49 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService implements IUserService {
 
+    @NonNull
     private IUserRepo userRepo;
 
-    private IRoleRepo roleRepo;
+    @NonNull
 
     private IVerificationTokenRepo verificationTokenRepo;
 
+    @NonNull
+
     private ILoginCodeRepo loginCodeRepo;
+
+    @NonNull
 
     private IEmailService mailService;
 
+    @NonNull
+
     private PasswordEncoder encoder;
+
+    @NonNull
 
     private AuthenticationManager authenticationManager;
 
-    private JwtUtils jwtUtils;
+    @NonNull
 
-    private RedisTemplate<Long, Object> redisTemplate;
+    private JwtUtils jwtUtils;
+    private final Map<Long, JwtResponse> jwtResponseMap = new HashMap<>();
 
     @Override
-    public User signUp(UserDto userDto) {
-
-        if (userRepo.existsByUsername(userDto.getUsername())) {
-            throw new UsernameAlreadyExistsException("Error: Username is already taken!");
-        }
-
-        if (userRepo.existsByEmail(userDto.getEmail())) {
-            throw new EmailAlreadyRegisteredException("Error: Email is already in use!");
-        }
-
-        userDto.setPassword(encoder.encode(userDto.getPassword()));
-        User user = UserMapper.mapToUser(userDto);
-
-        Set<String> strRoles = userDto.getRoles();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Role userRole = roleRepo.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepo.findByName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-
-                        break;
-                    case "mod":
-                        Role modRole = roleRepo.findByName(ERole.ROLE_MODERATOR)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-
-                        break;
-                    default:
-                        Role userRole = roleRepo.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
-        }
-
-        user.setRoles(roles);
-        sendVerificationEmail(user);
-        return userRepo.save(user);
+    public UserDto signUp(UserDto userDto) {
+        UserDto savedUserDto = addUser(userDto);
+        sendVerificationEmail(UserMapper.mapToUser(savedUserDto));
+        return savedUserDto;
     }
 
     @Override
-    public User signIn(LoginDto loginDto) {
+    public UserDto signIn(LoginDto loginDto) {
         User user = userRepo.findByUsername(loginDto.getUsername());
 
         if(user == null)
@@ -118,22 +88,22 @@ public class UserService implements IUserService {
         String jwt = jwtUtils.generateJwtToken(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        List<String> roles = userDetails.getAuthorities().stream()
+        String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .toList();
+                .toList().get(0);
 
         JwtResponse response = new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                roles);
+                role);
 
 
-        redisTemplate.opsForValue().set(response.getId(), response);
+        jwtResponseMap.put(response.getId(), response);
 
         sendLoginCode(user);
 
-        return user;
+        return UserMapper.mapToUserDto(user);
     }
 
     @Override
@@ -172,15 +142,77 @@ public class UserService implements IUserService {
 
         loginCodeRepo.delete(loginCode);
 
-        return (JwtResponse) redisTemplate.opsForValue().get(loginCode.getUser().getId());
+        return jwtResponseMap.get(loginCode.getUser().getId());
 
 
     }
 
+    @Override
+    public List<UserDto> getAllUsers(Integer page, String username, String sort) {
+        System.out.println(username);
+        System.out.println(page);
+        List<User> userList;
+        if(sort.equals("ASC"))
+            userList = userRepo.findByUsernameContainingIgnoreCaseOrderByIdAsc(username, PageRequest.of(page,10));
+        else
+            userList = userRepo.findByUsernameContainingIgnoreCaseOrderByIdDesc(username, PageRequest.of(page,10));
+        System.out.println(userList);
+        return userList.stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
+    }
 
-    public User getUserById(Long userId) {
-        return userRepo.findById(userId)
+    @Override
+    public UserDto addUser(UserDto userDto) {
+
+        if (userRepo.existsByUsername(userDto.getUsername())) {
+            throw new UsernameAlreadyExistsException("Error: Username is already taken!");
+        }
+
+        if (userRepo.existsByEmail(userDto.getEmail())) {
+            throw new EmailAlreadyRegisteredException("Error: Email is already in use!");
+        }
+
+        userDto.setPassword(encoder.encode(userDto.getPassword()));
+        User user = UserMapper.mapToUser(userDto);
+
+        return UserMapper.mapToUserDto(userRepo.save(user));
+    }
+
+    @Override
+    public UserDto updateUser(Long userId, UserDto updatedUser) {
+
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Error: User not found."));
+
+        if (userRepo.existsByUsername(updatedUser.getUsername()) && !user.getUsername().equals(updatedUser.getUsername())) {
+            throw new UsernameAlreadyExistsException("Error: Username is already taken!");
+        }
+
+        if (userRepo.existsByEmail(updatedUser.getEmail()) && !user.getEmail().equals(updatedUser.getEmail())) {
+            throw new EmailAlreadyRegisteredException("Error: Email is already in use!");
+        }
+
+        user.setUsername(updatedUser.getUsername());
+        user.setEmail(updatedUser.getEmail());
+        user.setPassword(encoder.encode(updatedUser.getPassword()));
+        user.setRole(ERole.valueOf(updatedUser.getRole()));
+
+        User updatedUserObj = userRepo.save(user);
+
+        return UserMapper.mapToUserDto(updatedUserObj);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User not found."));
+
+        userRepo.delete(user);
+    }
+
+
+    public UserDto getUserById(Long userId) {
+        return UserMapper.mapToUserDto(userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Error: User not found.")));
     }
 
 

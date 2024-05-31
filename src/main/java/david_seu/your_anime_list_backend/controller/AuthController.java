@@ -26,8 +26,8 @@ public class AuthController {
     @PostMapping("/signIn")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginDto loginDto) {
         try {
-            UserDto user = UserMapper.mapToUserDto(userService.signIn(loginDto));
-            return ResponseEntity.ok(user);
+            UserDto userDto = userService.signIn(loginDto);
+            return ResponseEntity.ok(userDto);
         }
         catch (UserNotVerifiedException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
@@ -41,8 +41,8 @@ public class AuthController {
     @PostMapping("/signUp")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserDto userDto) {
         try{
-            User user = userService.signUp(userDto);
-            return ResponseEntity.ok(user+ " Now check your email to confirm registration");
+            UserDto savedUserDto = userService.signUp(userDto);
+            return ResponseEntity.ok(savedUserDto+ " Now check your email to confirm registration");
         }
         catch (RuntimeException e){
             return ResponseEntity.badRequest().body(e.getMessage());

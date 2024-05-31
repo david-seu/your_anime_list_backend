@@ -1,5 +1,6 @@
 package david_seu.your_anime_list_backend.controller;
 
+import david_seu.your_anime_list_backend.mapper.UserMapper;
 import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
@@ -30,15 +31,12 @@ public class EpisodeController {
     private IUserService userService;
 
 
-    @GetMapping("/getAllEpisodes")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<EpisodeDto>> getAllEpisodes(@RequestParam(required = false, defaultValue = "0") Integer page){
+    @GetMapping("/getAll")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<EpisodeDto>> getAllEpisodes(@RequestParam(required = false, defaultValue = "DESC") String sort, @RequestParam(required = false, defaultValue = "0") Integer page, @RequestParam(required = false, defaultValue = "") String title){
         try{
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-            User user = userService.getUserById(userDetails.getId());
-            List<EpisodeDto> episodeList = episodeService.getAllEpisodes(page, user);
-            if(episodeList.isEmpty()){
+            List<EpisodeDto> episodeList = episodeService.getAllEpisodes(page, title, sort);
+            if(episodeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(episodeList, HttpStatus.OK);
@@ -48,8 +46,10 @@ public class EpisodeController {
         }
     }
 
-    @GetMapping("/getEpisode/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
+
+
+    @GetMapping("/get/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<EpisodeDto> getEpisodeById(@PathVariable("id") Long episodeId){
         try{
             EpisodeDto episodeDto = episodeService.getEpisodeById(episodeId);
@@ -60,37 +60,29 @@ public class EpisodeController {
         }
     }
 
-        @PostMapping("/addEpisode")
-        @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-        public ResponseEntity<EpisodeDto> addEpisode(@RequestBody EpisodeDto episodeDto){
-            try {
-                UserDetailsImpl userDetails =
-                        (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                AnimeDto animeDto = animeService.getAnimeByTitle(episodeDto.getAnimeTitle());
-                episodeDto.setAnime(AnimeMapper.mapToAnime(animeDto));
-                User user = userService.getUserById(userDetails.getId());
-                episodeDto.setUser(user);
-                EpisodeDto saveEpisodeDto = episodeService.createEpisode(episodeDto);
-                return new ResponseEntity<>(saveEpisodeDto, HttpStatus.CREATED);
-            }
-            catch (ResourceNotFoundException e)
-            {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-
+    @PostMapping("/add")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<EpisodeDto> addEpisode(@RequestBody EpisodeDto episodeDto){
+        try {
+            AnimeDto animeDto = animeService.getAnimeByTitle(episodeDto.getAnimeTitle());
+            episodeDto.setAnime(AnimeMapper.mapToAnime(animeDto));
+            EpisodeDto saveEpisodeDto = episodeService.createEpisode(episodeDto);
+            return new ResponseEntity<>(saveEpisodeDto, HttpStatus.CREATED);
+        }
+        catch (ResourceNotFoundException e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-    @PatchMapping("/updateEpisode/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
+    }
+
+    @PatchMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<EpisodeDto> updateEpisode(@PathVariable("id") Long episodeId, @RequestBody EpisodeDto updatedEpisode){
         EpisodeDto episodeDto;
         try{
             AnimeDto animeDto = animeService.getAnimeByTitle(updatedEpisode.getAnimeTitle());
             updatedEpisode.setAnime(AnimeMapper.mapToAnime(animeDto));
-            UserDetailsImpl userDetails =
-                    (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            User user = userService.getUserById(userDetails.getId());
-            updatedEpisode.setUser(user);
             episodeDto = episodeService.updateEpisode(episodeId, updatedEpisode);
         }
         catch (ResourceNotFoundException e)
@@ -100,9 +92,9 @@ public class EpisodeController {
         return new ResponseEntity<>(episodeDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteEpisode/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<HttpStatus> deleteEpisode(@PathVariable("id") Long episodeId){
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<HttpStatus> deleteEpisodeById(@PathVariable("id") Long episodeId){
         try{
             episodeService.deleteEpisode(episodeId);
         }
@@ -111,6 +103,5 @@ public class EpisodeController {
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
 }

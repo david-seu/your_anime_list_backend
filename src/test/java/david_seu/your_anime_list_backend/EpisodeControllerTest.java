@@ -43,23 +43,23 @@ public class EpisodeControllerTest {
     @Test
     public void testGetAllEpisodes() {
         EpisodeDto episodeDto = new EpisodeDto();
-        when(episodeService.getAllEpisodes(0, any(User.class))).thenReturn(List.of(episodeDto));
+        when(episodeService.getAllEpisodes(0,"","")).thenReturn(List.of(episodeDto));
 
-        ResponseEntity<List<EpisodeDto>> response = episodeController.getAllEpisodes(0);
+        ResponseEntity<List<EpisodeDto>> response = episodeController.getAllEpisodes("",0,"");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, Objects.requireNonNull(response.getBody()).size());
-        verify(episodeService, times(1)).getAllEpisodes(0, any(User.class));
+        verify(episodeService, times(1)).getAllEpisodes(0,"","");
     }
 
     @Test
     public void testGetAllEpisodesEmpty() {
-        when(episodeService.getAllEpisodes(0, any(User.class))).thenReturn(List.of());
+        when(episodeService.getAllEpisodes(0,"","")).thenReturn(List.of());
 
-        ResponseEntity<List<EpisodeDto>> response = episodeController.getAllEpisodes(0);
+        ResponseEntity<List<EpisodeDto>> response = episodeController.getAllEpisodes("",0,"");
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(episodeService, times(1)).getAllEpisodes(0, any(User.class));
+        verify(episodeService, times(1)).getAllEpisodes(0,"","");
     }
 
     @Test
@@ -173,7 +173,7 @@ public class EpisodeControllerTest {
         Long episodeId = 1L;
 
         // Execution
-        ResponseEntity<HttpStatus> response = episodeController.deleteEpisode(episodeId);
+        ResponseEntity<HttpStatus> response = episodeController.deleteEpisodeById(episodeId);
 
         // Assertion
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -187,7 +187,7 @@ public class EpisodeControllerTest {
         doThrow(ResourceNotFoundException.class).when(episodeService).deleteEpisode(episodeId);
 
         // Execution
-        ResponseEntity<HttpStatus> response = episodeController.deleteEpisode(episodeId);
+        ResponseEntity<HttpStatus> response = episodeController.deleteEpisodeById(episodeId);
 
         // Assertion
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

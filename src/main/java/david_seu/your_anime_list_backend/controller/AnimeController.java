@@ -1,5 +1,7 @@
 package david_seu.your_anime_list_backend.controller;
 
+import david_seu.your_anime_list_backend.exception.InvalidAnimeException;
+import david_seu.your_anime_list_backend.mapper.UserMapper;
 import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
@@ -15,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/anime")
@@ -26,14 +29,11 @@ public class AnimeController {
     private IUserService userService;
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @GetMapping("/getAllAnime")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<AnimeDto>> getAllAnime(@RequestParam(required = false, defaultValue = "DESC") String sort, @RequestParam(required = false, defaultValue = "0") Integer page) {
+    @GetMapping("/getAll")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<?>> getAllAnime(@RequestParam(required = false, defaultValue = "DESC") String sort, @RequestParam(required = false, defaultValue = "") String title, @RequestParam(required = false, defaultValue = "0") Integer page) {
         try {
-            UserDetailsImpl userDetails =
-                    (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            User user = userService.getUserById(userDetails.getId());
-            List<AnimeDto> animeList = animeService.getAllAnime(page, user);
+            List<AnimeDto> animeList = animeService.getAllAnime(page, title, sort);
             if (animeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -51,9 +51,9 @@ public class AnimeController {
     }
 
 
-    @GetMapping("/getAnime/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<AnimeDto> getAnimeById(@PathVariable("id") Long animeId){
+    @GetMapping("/get/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAnimeById(@PathVariable("id") Long animeId){
         try {
 
             AnimeDto animeDto = animeService.getAnimeById(animeId);
@@ -65,29 +65,30 @@ public class AnimeController {
         }
     }
 
-    @PostMapping("/addAnime")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<AnimeDto> addAnime(@RequestBody AnimeDto animeDto)
+    @PostMapping("/add")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addAnime(@RequestBody AnimeDto animeDto)
     {
         UserDetailsImpl userDetails =
                 (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        User user = userService.getUserById(userDetails.getId());
-        
+        User user = UserMapper.mapToUser(userService.getUserById(userDetails.getId()));
         animeDto.setUser(user);
-        AnimeDto saveAnimeDto = animeService.createAnime(animeDto);
-        return new ResponseEntity<>(saveAnimeDto, HttpStatus.CREATED);
+        try {
+            AnimeDto saveAnimeDto = animeService.createAnime(animeDto);
+            return new ResponseEntity<>(saveAnimeDto, HttpStatus.CREATED);
+        }
+        catch (InvalidAnimeException e)
+        {
+            return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @PatchMapping("/updateAnime/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<AnimeDto> updateAnimeById(@PathVariable("id") Long animeId, @RequestBody AnimeDto updatedAnime)
+    @PatchMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateAnimeById(@PathVariable("id") Long animeId, @RequestBody AnimeDto updatedAnime)
     {
         AnimeDto animeDto;
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userService.getUserById(userDetails.getId());
-        updatedAnime.setUser(user);
         try {
             animeDto = animeService.updateAnime(animeId, updatedAnime);
         }
@@ -98,9 +99,9 @@ public class AnimeController {
         return new ResponseEntity<>(animeDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteAnime/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<HttpStatus> deleteBookById(@PathVariable("id") Long animeId)
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteAnimeById(@PathVariable("id") Long animeId)
     {
         try {
             animeService.deleteAnime(animeId);
@@ -110,6 +111,16 @@ public class AnimeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/scoresCount")
+    public ResponseEntity<?> getScoresCount() {
+        try {
+            List<Integer> scoresCount = animeService.getScoresCount();
+            return new ResponseEntity<>(scoresCount, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 //

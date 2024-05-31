@@ -1,6 +1,5 @@
 package david_seu.your_anime_list_backend.repo;
 
-import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.model.VerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 

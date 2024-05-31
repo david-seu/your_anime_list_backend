@@ -3,7 +3,6 @@ import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import david_seu.your_anime_list_backend.model.User;
 import lombok.AllArgsConstructor;
@@ -33,12 +32,11 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private GrantedAuthority authority;
 
     public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
+
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
 
         return new UserDetailsImpl(
                 user.getId(),
@@ -46,12 +44,12 @@ public class UserDetailsImpl implements UserDetails {
                 user.getEmail(),
                 user.getEnabled(),
                 user.getPassword(),
-                authorities);
+                authority);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return List.of(authority);
     }
 
     @Override

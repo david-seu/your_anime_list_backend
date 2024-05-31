@@ -21,6 +21,4 @@ public class EpisodeDto {
     private Boolean watched;
     private String animeTitle;
     private Anime anime=null;
-    private Long userId;
-    private User user=null;
 }

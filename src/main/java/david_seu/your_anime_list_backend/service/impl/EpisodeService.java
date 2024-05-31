@@ -1,13 +1,10 @@
 package david_seu.your_anime_list_backend.service.impl;
 
-import david_seu.your_anime_list_backend.mapper.UserMapper;
-import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.EpisodeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.EpisodeMapper;
 import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.model.Episode;
-import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
 import david_seu.your_anime_list_backend.service.IEpisodeService;
 import lombok.AllArgsConstructor;
@@ -38,18 +35,14 @@ public class EpisodeService implements IEpisodeService {
     }
 
     @Override
-    public List<EpisodeDto> getAllEpisodes(Integer page, User user) {
-        int size =  episodeRepo.findAllByUser(user).size();
-        if(size == 0)
-        {
-            return new ArrayList<>();
-        }
-        Integer totalPages = size / 10;
-        if(page < 0){
-            page = totalPages - page;
-        }
-        int pageToGet = page % totalPages;
-        List<Episode> episodeList = episodeRepo.findAllByUserOrderByScore(user, PageRequest.of(pageToGet,10));
+    public List<EpisodeDto> getAllEpisodes(Integer page, String title, String sort) {
+        System.out.println(title);
+        List<Episode> episodeList;
+        if(sort.equals("ASC"))
+            episodeList = episodeRepo.findByTitleContainingIgnoreCaseOrderByIdAsc(title, PageRequest.of(page,10));
+        else
+            episodeList = episodeRepo.findByTitleContainingIgnoreCaseOrderByIdDesc(title, PageRequest.of(page,10));
+        System.out.println(episodeList);
         return episodeList.stream().map(EpisodeMapper::mapToEpisodeDto).collect(Collectors.toList());
     }
 

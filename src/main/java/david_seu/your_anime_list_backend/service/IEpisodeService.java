@@ -12,7 +12,7 @@ public interface IEpisodeService {
 
     EpisodeDto getEpisodeById(Long episodeId);
 
-    List<EpisodeDto> getAllEpisodes(Integer page, User user);
+    List<EpisodeDto> getAllEpisodes(Integer page, String title, String sort);
 
     EpisodeDto updateEpisode(Long episodeId, EpisodeDto updatedEpisode);
 

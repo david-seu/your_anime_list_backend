@@ -5,13 +5,15 @@ import david_seu.your_anime_list_backend.payload.dto.LoginDto;
 import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.payload.response.JwtResponse;
 
+import java.util.List;
+
 public interface IUserService {
 
-    User signUp(UserDto userDto);
+    UserDto signUp(UserDto userDto);
 
-    User signIn(LoginDto loginDto);
+    UserDto signIn(LoginDto loginDto);
 
-    User getUserById(Long userId);
+    UserDto getUserById(Long userId);
 
     void verifyUser(String token);
 
@@ -21,4 +23,11 @@ public interface IUserService {
 
     JwtResponse verifyUser(Integer code);
 
+    List<UserDto> getAllUsers(Integer page, String username, String sort);
+
+    UserDto addUser(UserDto userDto);
+
+    UserDto updateUser(Long userId, UserDto updatedUser);
+
+    void deleteUser(Long userId);
 }

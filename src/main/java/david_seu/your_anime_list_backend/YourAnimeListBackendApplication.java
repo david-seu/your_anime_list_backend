@@ -13,9 +13,9 @@ public class YourAnimeListBackendApplication {
 		SpringApplication.run(YourAnimeListBackendApplication.class, args);
 	}
 
-//	@Bean
-//	public ApplicationRunner applicationRunner(IFakeDataService fakeDataService) {
-//        return args -> fakeDataService.generateFakeData();
-//	}
+	@Bean
+	public ApplicationRunner applicationRunner(IFakeDataService fakeDataService) {
+        return args -> fakeDataService.generateFakeData();
+	}
 
 }

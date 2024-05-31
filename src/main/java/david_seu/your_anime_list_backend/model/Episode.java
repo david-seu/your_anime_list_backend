@@ -6,7 +6,14 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table
+@Table(
+        indexes = {
+                @Index(name = "episode_title_index", columnList = "title"),
+                @Index(name = "episode_season_index", columnList = "season"),
+                @Index(name = "episode_anime_id_index", columnList = "anime_id")
+        }
+
+)
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -27,8 +34,4 @@ public class Episode {
         @JoinColumn(name = "anime_id", nullable = false, referencedColumnName = "id")
         @OnDelete(action = OnDeleteAction.CASCADE)
         private Anime anime;
-
-        @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id")
-        private User user;
 }
