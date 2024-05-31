@@ -1,0 +1,137 @@
+/* Global Style Starts */
+
+:root {
+  --primary: #51d8d8;
+  --heading-color: #052b44;
+  --bg-shade: #f5fcff;
+  --darkblue: #1c1cee53;
+  --black: #00rgba(9, 29, 71, 0.325)
+  --white: #ffffff;
+}
+
+
+.btn {
+  font-family: "Roboto";
+  display: inline-block;
+  padding: 14px 32px;
+  margin: 10px 10px;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  transition: background-color 0.5s;
+  -webkit-transition: background-color 0.5s;
+  -moz-transition: background-color 0.5s;
+  -ms-transition: background-color 0.5s;
+  -o-transition: background-color 0.5s;
+}
+
+.btn-outline-primary{
+  color: var(--primary);
+  background-color: var(--white);
+  border: 1px solit var(--primary);
+}
+.btn-outline-primary:hover{
+  color: var(--white);
+  background-color: var(--primary);
+}
+.btn-primary{
+  color: var(--white);
+  background-color: var(--primary);
+  border: 1px solit var(--primary);
+}
+.btn-primary:hover{
+  color: var(--primary);
+  background-color: var(--white);
+}
+
+.btn-lg{
+  font-size: 24px;
+  padding: 14px 40px;
+  margin: 10px 10px;
+}
+
+
+.container{
+  display: list-item;
+  width: 100%;
+}
+/* Global Style Ends */
+
+
+/* Home Style Starts */
+
+.home--container{
+    display: list-item;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    line-height: 60px;
+    margin-top: 50px;
+    margin-left: 200px;
+    width: 100%;
+    padding: 0;
+}
+
+.tables--container{
+  display: list-item;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+}
+
+button-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 50px;
+  margin-left: 200px;
+  width: 100%;
+}
+
+.table{
+  padding: 20px;
+}
+
+/* Home Style Ends */
+
+/* View Stle Start */
+.view--container{
+  display: list-item;
+  align-items: center;
+  margin:  50px 100px 0 100px;
+  list-style: none;
+  line-height: 50px;
+}
+
+/* View Style Ends */
+
+/* Edit Style Starts */
+
+.edit--container{
+  display: list-item;
+  align-items: center;
+  margin:  50px 1000px 0 100px;
+  list-style: none;
+  line-height: 50px;
+}
+/* Edit Style Ends */
+
+/* Add Style Starts */
+
+.add--container{
+  display: list-item;
+  align-items: center;
+  margin:  50px 1000px 0 100px;
+  list-style: none;
+  line-height: 50px;
+}
+/* Add Style Ends */
