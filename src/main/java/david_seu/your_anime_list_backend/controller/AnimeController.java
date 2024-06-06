@@ -11,7 +11,10 @@ import david_seu.your_anime_list_backend.service.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -36,12 +39,6 @@ public class AnimeController {
             List<AnimeDto> animeList = animeService.getAllAnime(page, title, sort);
             if (animeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            if(sort.equals("DESC"))
-            {
-                animeList = animeList.reversed();
-
             }
 
             return new ResponseEntity<>(animeList, HttpStatus.OK);
@@ -123,18 +120,19 @@ public class AnimeController {
         }
     }
 
-//
-//    @MessageMapping("/anime")
-//    @SendTo("/topic/anime")
-//    public AnimeDto broadcastAnime(AnimeDto animeDto) {
-//        return animeDto;
-//    }
-//
-//    @PostMapping("/createAnime")
-//    @Scheduled(fixedRate = 15000)
-//    public ResponseEntity<AnimeDto> createAnime(){
-//        AnimeDto animeDto = animeService.createAnime();
-//        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
-//        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
-//    }
+
+    @MessageMapping("/anime")
+    @SendTo("/topic/anime")
+    public AnimeDto broadcastAnime(AnimeDto animeDto) {
+        return animeDto;
+    }
+
+    @PostMapping("/createAnime")
+    @Scheduled(fixedRate = 15000)
+    public ResponseEntity<AnimeDto> createAnime(){
+        AnimeDto animeDto = animeService.createAnime();
+        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
+        System.out.println("Anime created");
+        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
+    }
 }

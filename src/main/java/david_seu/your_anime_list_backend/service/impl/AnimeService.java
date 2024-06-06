@@ -7,6 +7,7 @@ import david_seu.your_anime_list_backend.mapper.AnimeMapper;
 import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.repo.IAnimeRepo;
 import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
+import david_seu.your_anime_list_backend.repo.IUserRepo;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ public class AnimeService implements IAnimeService {
 
     private IAnimeRepo animeRepo;
     private IEpisodeRepo episodeRepo;
+    private IUserRepo userRepo;
 
     @Override
     public AnimeDto createAnime(AnimeDto animeDto) {
@@ -85,7 +87,7 @@ public class AnimeService implements IAnimeService {
         anime.setWatched(false);
         anime.setTitle("New Anime");
         anime.setScore(10);
-        anime.setUser(null);
+        anime.setUser(userRepo.findByUsername("zyk3l"));
 
         Anime savedAnime = animeRepo.save(anime);
         return AnimeMapper.mapToAnimeDto(savedAnime, 0);
