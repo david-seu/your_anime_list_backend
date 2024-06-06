@@ -1,5 +1,5 @@
 # Use the official Gradle image with OpenJDK 21 to build the project
-FROM gradle:8.2.1-jdk21 AS build
+FROM gradle:8.2.1-jdk17 AS build
 
 # Copy the project files into the container
 COPY . .
@@ -8,7 +8,7 @@ COPY . .
 RUN gradle clean build -x test
 
 # Use a minimal JDK 21 image to run the application
-FROM openjdk:21-slim
+FROM openjdk:17-slim
 
 # Copy the built jar file from the build stage to the final stage
 COPY --from=build /home/gradle/build/libs/your_anime_list_backend-0.0.1-SNAPSHOT.jar demo.jar
