@@ -121,18 +121,18 @@ public class AnimeController {
     }
 
 
-    @MessageMapping("/anime")
-    @SendTo("/topic/anime")
-    public AnimeDto broadcastAnime(AnimeDto animeDto) {
-        return animeDto;
-    }
-
-    @PostMapping("/createAnime")
-    @Scheduled(fixedRate = 15000)
-    public ResponseEntity<AnimeDto> createAnime(){
-        AnimeDto animeDto = animeService.createAnime();
-        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
-        System.out.println("Anime created");
-        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
-    }
+//    @MessageMapping("/anime")
+//    @SendTo("/topic/anime")
+//    public AnimeDto broadcastAnime(AnimeDto animeDto) {
+//        return animeDto;
+//    }
+//
+//    @PostMapping("/createAnime")
+//    @Scheduled(fixedRate = 15000)
+//    public ResponseEntity<AnimeDto> createAnime(){
+//        AnimeDto animeDto = animeService.createAnime();
+//        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
+//        System.out.println("Anime created");
+//        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
+//    }
 }
