@@ -42,7 +42,6 @@ public class EpisodeService implements IEpisodeService {
             episodeList = episodeRepo.findByTitleContainingIgnoreCaseOrderByIdAsc(title, PageRequest.of(page,10));
         else
             episodeList = episodeRepo.findByTitleContainingIgnoreCaseOrderByIdDesc(title, PageRequest.of(page,10));
-        System.out.println(episodeList);
         return episodeList.stream().map(EpisodeMapper::mapToEpisodeDto).collect(Collectors.toList());
     }
 

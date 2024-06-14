@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.Date;
+
 @Entity
 @Table(
         indexes = {
@@ -28,7 +30,6 @@ public class Episode {
         private Integer number;
         private Integer season;
         private Integer score = -1;
-        private Boolean watched = false;
 
         @ManyToOne
         @JoinColumn(name = "anime_id", nullable = false, referencedColumnName = "id")

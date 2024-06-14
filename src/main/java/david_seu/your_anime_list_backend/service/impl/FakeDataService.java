@@ -2,7 +2,7 @@ package david_seu.your_anime_list_backend.service.impl;
 
 import david_seu.your_anime_list_backend.mapper.UserMapper;
 import david_seu.your_anime_list_backend.model.Anime;
-import david_seu.your_anime_list_backend.model.ERole;
+import david_seu.your_anime_list_backend.model.utils.ERole;
 import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.model.faker.CustomFaker;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;

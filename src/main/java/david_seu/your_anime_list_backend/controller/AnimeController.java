@@ -8,29 +8,39 @@ import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.security.service.impl.UserDetailsImpl;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.IUserService;
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/anime")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class AnimeController {
 
+    @NonNull
     private IAnimeService animeService;
+    @NonNull
     private IUserService userService;
+    @NonNull
     private SimpMessagingTemplate simpMessagingTemplate;
+    @NonNull
+    private final TaskScheduler taskScheduler;
+
+    private ScheduledFuture<?> scheduledTask;
 
     @GetMapping("/getAll")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
@@ -120,19 +130,38 @@ public class AnimeController {
         }
     }
 
+    @PostMapping("/startCreation")
+    public ResponseEntity<?> startAnimeCreation() {
+        if (scheduledTask == null || scheduledTask.isDone()) {
+            PeriodicTrigger trigger = new PeriodicTrigger(15, TimeUnit.SECONDS);
+            trigger.setFixedRate(true);
+            scheduledTask = taskScheduler.schedule(this::createAnime, trigger);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
-//    @MessageMapping("/anime")
-//    @SendTo("/topic/anime")
-//    public AnimeDto broadcastAnime(AnimeDto animeDto) {
-//        return animeDto;
-//    }
-//
-//    @PostMapping("/createAnime")
-//    @Scheduled(fixedRate = 15000)
-//    public ResponseEntity<AnimeDto> createAnime(){
-//        AnimeDto animeDto = animeService.createAnime();
-//        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
-//        System.out.println("Anime created");
-//        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
-//    }
+    @PostMapping("/stopCreation")
+    public ResponseEntity<?> stopAnimeCreation() {
+        System.out.println("wtf");
+        System.out.println(scheduledTask);
+        if (scheduledTask != null) {
+            scheduledTask.cancel(true);
+            System.out.println("Anime creation stopped");
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @MessageMapping("/anime")
+    @SendTo("/topic/anime")
+    public AnimeDto broadcastAnime(AnimeDto animeDto) {
+        return animeDto;
+    }
+
+    private ResponseEntity<AnimeDto> createAnime() {
+
+        AnimeDto animeDto = animeService.createAnime();
+        simpMessagingTemplate.convertAndSend("/topic/anime", animeDto);
+        System.out.println("Anime created");
+        return new ResponseEntity<>(animeDto, HttpStatus.CREATED);
+    }
 }

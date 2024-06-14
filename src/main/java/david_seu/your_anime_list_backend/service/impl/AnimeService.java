@@ -1,12 +1,16 @@
 package david_seu.your_anime_list_backend.service.impl;
 
 import david_seu.your_anime_list_backend.exception.InvalidAnimeException;
+import david_seu.your_anime_list_backend.model.Genre;
+import david_seu.your_anime_list_backend.model.User;
+import david_seu.your_anime_list_backend.model.faker.CustomFaker;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.AnimeMapper;
 import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.repo.IAnimeRepo;
 import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
+import david_seu.your_anime_list_backend.repo.IGenreRepo;
 import david_seu.your_anime_list_backend.repo.IUserRepo;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
@@ -24,12 +28,10 @@ public class AnimeService implements IAnimeService {
     private IAnimeRepo animeRepo;
     private IEpisodeRepo episodeRepo;
     private IUserRepo userRepo;
+    private IGenreRepo  genreRepo;
 
     @Override
     public AnimeDto createAnime(AnimeDto animeDto) {
-        if(animeDto.getScore() < 0 || animeDto.getScore() > 10){
-            throw new InvalidAnimeException("Score must be between 0 and 10");
-        }
         Anime anime = AnimeMapper.mapToAnime(animeDto);
         Anime savedAnime = animeRepo.save(anime);
         return AnimeMapper.mapToAnimeDto(savedAnime, 0);
@@ -52,7 +54,6 @@ public class AnimeService implements IAnimeService {
             animeList = animeRepo.findByTitleContainingIgnoreCaseOrderByIdAsc(title, PageRequest.of(page,10));
         else
             animeList = animeRepo.findByTitleContainingIgnoreCaseOrderByIdDesc(title, PageRequest.of(page,10));
-        System.out.println(animeList);
         return animeList.stream().map((anime) -> {
             Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
             return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
@@ -65,7 +66,6 @@ public class AnimeService implements IAnimeService {
         Anime anime = animeRepo.findById(animeId).orElseThrow(() -> new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
         anime.setTitle(updatedAnime.getTitle());
         anime.setScore(updatedAnime.getScore());
-        anime.setWatched(updatedAnime.getWatched());
 
         Anime updatedAnimeObj = animeRepo.save(anime);
 
@@ -83,11 +83,12 @@ public class AnimeService implements IAnimeService {
 
     @Override
     public AnimeDto createAnime() {
+        User user = userRepo.findByUsername("zyk3l");
+        CustomFaker faker = new CustomFaker();
         Anime anime = new Anime();
-        anime.setWatched(false);
-        anime.setTitle("New Anime");
-        anime.setScore(10);
-        anime.setUser(userRepo.findByUsername("zyk3l"));
+        anime.setTitle(faker.anime().nextAnimeTitle());
+        anime.setScore(faker.number().numberBetween(1,10));
+        anime.setUser(user);
 
         Anime savedAnime = animeRepo.save(anime);
         return AnimeMapper.mapToAnimeDto(savedAnime, 0);
@@ -95,6 +96,7 @@ public class AnimeService implements IAnimeService {
 
     @Override
     public AnimeDto getAnimeByTitle(String title) {
+
         Anime anime = animeRepo.findByTitle(title);
         Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
         return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
@@ -103,6 +105,19 @@ public class AnimeService implements IAnimeService {
     @Override
     public List<Integer> getScoresCount() {
         return animeRepo.findAllGroupByScore();
+    }
+
+    @Override
+    public List<AnimeDto> getAnimeByGenre(String genre) {
+        Genre genreObj = genreRepo.findByName(genre);
+        if(genreObj == null){
+            throw new ResourceNotFoundException("Genre does not exist with given name: " + genre);
+        }
+        List<Anime> animeList = animeRepo.findByGenre(genreObj);
+        return animeList.stream().map((anime) -> {
+            Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
+            return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
+        }).collect(Collectors.toList());
     }
 
 //    @Override

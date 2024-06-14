@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.Date;
+
 @Entity
 @Table(
         indexes = {
@@ -26,7 +28,13 @@ public class Anime {
     private Long id;
     private String title;
     private Integer score = -1;
-    private Boolean watched = false;
+    private Date releaseDate;
+
+    @ManyToOne
+    @JoinColumn(name = "genre_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Genre genre;
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)

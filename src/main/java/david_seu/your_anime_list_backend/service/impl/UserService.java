@@ -5,6 +5,7 @@ import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.exception.UserNotVerifiedException;
 import david_seu.your_anime_list_backend.exception.UsernameAlreadyExistsException;
 import david_seu.your_anime_list_backend.model.*;
+import david_seu.your_anime_list_backend.model.utils.ERole;
 import david_seu.your_anime_list_backend.payload.dto.LoginDto;
 import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.mapper.UserMapper;
@@ -156,7 +157,6 @@ public class UserService implements IUserService {
             userList = userRepo.findByUsernameContainingIgnoreCaseOrderByIdAsc(username, PageRequest.of(page,10));
         else
             userList = userRepo.findByUsernameContainingIgnoreCaseOrderByIdDesc(username, PageRequest.of(page,10));
-        System.out.println(userList);
         return userList.stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
     }
 

@@ -1,10 +1,8 @@
 package david_seu.your_anime_list_backend.service;
 
-import david_seu.your_anime_list_backend.model.User;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IAnimeService {
     AnimeDto createAnime(AnimeDto animeDto);
@@ -22,4 +20,6 @@ public interface IAnimeService {
     AnimeDto getAnimeByTitle(String title);
 
     List<Integer> getScoresCount();
+
+    List<AnimeDto> getAnimeByGenre(String genre);
 }

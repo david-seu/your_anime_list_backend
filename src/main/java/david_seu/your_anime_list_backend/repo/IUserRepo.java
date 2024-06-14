@@ -1,5 +1,5 @@
 package david_seu.your_anime_list_backend.repo;
-import david_seu.your_anime_list_backend.model.ERole;
+import david_seu.your_anime_list_backend.model.utils.ERole;
 import david_seu.your_anime_list_backend.model.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

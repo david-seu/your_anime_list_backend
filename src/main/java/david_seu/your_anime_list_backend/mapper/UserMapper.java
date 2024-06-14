@@ -1,6 +1,6 @@
 package david_seu.your_anime_list_backend.mapper;
 
-import david_seu.your_anime_list_backend.model.ERole;
+import david_seu.your_anime_list_backend.model.utils.ERole;
 import david_seu.your_anime_list_backend.payload.dto.UserDto;
 import david_seu.your_anime_list_backend.model.User;
 
