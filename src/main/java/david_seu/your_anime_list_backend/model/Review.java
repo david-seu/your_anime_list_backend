@@ -14,14 +14,14 @@ import lombok.Setter;
 public class Review {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
 
     private String content;
 
-    @MapsId
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "anime_user_id", referencedColumnName = "id")
     private AnimeUser animeUser;
 }

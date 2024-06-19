@@ -1,7 +1,9 @@
 package david_seu.your_anime_list_backend.controller;
 
-import david_seu.your_anime_list_backend.model.utils.AnimeUserId;
+import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
+import david_seu.your_anime_list_backend.model.Anime;
 import david_seu.your_anime_list_backend.payload.dto.AnimeUserDto;
+import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.IAnimeUserService;
 import david_seu.your_anime_list_backend.service.IUserService;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,8 @@ public class AnimeUserController {
     private IAnimeUserService animeUserService;
 
     private IUserService userService;
+
+    private IAnimeService animeService;
 
     @GetMapping("/getAll/{userId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
@@ -44,7 +48,7 @@ public class AnimeUserController {
             AnimeUserDto animeUser = animeUserService.addAnimeUser(animeUserDto);
             return new ResponseEntity<>(animeUser, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -52,20 +56,23 @@ public class AnimeUserController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAnimeUserById(@PathVariable Long animeId, @PathVariable Long userId) {
         try {
-            AnimeUserId animeUserId = new AnimeUserId(animeId, userId);
-            AnimeUserDto animeUser = animeUserService.getAnimeUserById(animeUserId);
+            AnimeUserDto animeUser = animeUserService.getAnimeUserById(animeId, userId);
             return new ResponseEntity<>(animeUser, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (ResourceNotFoundException e)
+        {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("/update/{animeId}/{userId}")
+    @PatchMapping("/update/{animeId}/{userId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateAnimeUser(@PathVariable Long animeId, @PathVariable Long userId, @RequestBody AnimeUserDto updatedAnimeUser) {
         try {
-            AnimeUserId animeUserId = new AnimeUserId(animeId, userId);
-            AnimeUserDto animeUser = animeUserService.updateAnimeUser(animeUserId, updatedAnimeUser);
+            AnimeUserDto animeUser = animeUserService.updateAnimeUser(animeId, userId, updatedAnimeUser);
             return new ResponseEntity<>(animeUser, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -76,11 +83,10 @@ public class AnimeUserController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteAnimeUser(@PathVariable Long animeId, @PathVariable Long userId) {
         try {
-            AnimeUserId animeUserId = new AnimeUserId(animeId, userId);
-            animeUserService.deleteAnimeUser(animeUserId);
+            animeUserService.deleteAnimeUser(animeId, userId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

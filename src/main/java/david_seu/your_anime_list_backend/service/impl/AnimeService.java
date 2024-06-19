@@ -1,17 +1,15 @@
 package david_seu.your_anime_list_backend.service.impl;
 
-import david_seu.your_anime_list_backend.exception.InvalidAnimeException;
-import david_seu.your_anime_list_backend.model.Genre;
-import david_seu.your_anime_list_backend.model.User;
+import david_seu.your_anime_list_backend.model.*;
 import david_seu.your_anime_list_backend.model.faker.CustomFaker;
+import david_seu.your_anime_list_backend.model.utils.AnimeStatus;
+import david_seu.your_anime_list_backend.model.utils.Season;
+import david_seu.your_anime_list_backend.model.utils.Type;
 import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.mapper.AnimeMapper;
-import david_seu.your_anime_list_backend.model.Anime;
-import david_seu.your_anime_list_backend.repo.IAnimeRepo;
-import david_seu.your_anime_list_backend.repo.IEpisodeRepo;
-import david_seu.your_anime_list_backend.repo.IGenreRepo;
-import david_seu.your_anime_list_backend.repo.IUserRepo;
+import david_seu.your_anime_list_backend.repo.*;
+import david_seu.your_anime_list_backend.repo.util.AnimeSpecification;
 import david_seu.your_anime_list_backend.service.IAnimeService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -26,15 +24,17 @@ import java.util.stream.Collectors;
 public class AnimeService implements IAnimeService {
 
     private IAnimeRepo animeRepo;
-    private IEpisodeRepo episodeRepo;
     private IUserRepo userRepo;
-    private IGenreRepo  genreRepo;
+    private IAnimeSeasonRepo animeSeasonRepo;
+    private IGenreRepo genreRepo;
+    private IStudioRepo studioRepo;
+    private ITagRepo tagRepo;
 
     @Override
     public AnimeDto createAnime(AnimeDto animeDto) {
         Anime anime = AnimeMapper.mapToAnime(animeDto);
         Anime savedAnime = animeRepo.save(anime);
-        return AnimeMapper.mapToAnimeDto(savedAnime, 0);
+        return AnimeMapper.mapToAnimeDto(savedAnime);
     }
 
     @Override
@@ -42,22 +42,78 @@ public class AnimeService implements IAnimeService {
         Anime anime = animeRepo.findById(animeId).
                 orElseThrow(() ->
                         new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
-        Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
-        return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
+        return AnimeMapper.mapToAnimeDto(anime);
     }
 
     @Override
-    public List<AnimeDto> getAllAnime(Integer page, String title, String sort){
-        System.out.println(title);
-        List<Anime> animeList;
-        if(sort.equals("ASC"))
-            animeList = animeRepo.findByTitleContainingIgnoreCaseOrderByIdAsc(title, PageRequest.of(page,10));
-        else
-            animeList = animeRepo.findByTitleContainingIgnoreCaseOrderByIdDesc(title, PageRequest.of(page,10));
-        return animeList.stream().map((anime) -> {
-            Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
-            return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
-        }).collect(Collectors.toList());
+    public List<AnimeDto> getAllAnime(Integer page, String sortDirection, String title, String season, Integer year, Set<String> genres, Set<String> tags, Set<String> studios, Set<String> type, String status, String orderBy) {
+        AnimeSeason animeSeason = null;
+        if (season != null && year != null) {
+            animeSeason = animeSeasonRepo.findByYearAndSeason(year, Season.valueOf(season));
+            if (animeSeason == null) {
+                throw new ResourceNotFoundException("Anime season does not exist with given year: " + year + " and season: " + season);
+            }
+        }
+
+        Set<Type> typeObj = type == null ? null : type.stream().map(Type::valueOf).collect(Collectors.toSet());
+        AnimeStatus statusObj = status == null ? null : AnimeStatus.valueOf(status);
+
+        Set<Genre> genreSet = getGenres(genres);
+        Set<Tag> tagSet = getTags(tags);
+        Set<Studio> studioSet = getStudios(studios);
+
+        orderBy = orderBy == null ? "score" : orderBy;
+
+        try {
+            List<Anime> animeList = animeRepo.findAll(AnimeSpecification.filterByAttributes(title, animeSeason, genreSet, tagSet, studioSet, typeObj, statusObj, orderBy, sortDirection.equals("asc")), PageRequest.of(page, 50)).getContent();
+            return animeList.stream().map(AnimeMapper::mapToAnimeDto).collect(Collectors.toList());
+        }
+        catch (Exception e) {
+            System.out.println("Error: " + e);
+            throw new ResourceNotFoundException("No animes found");
+        }
+    }
+
+    private Set<Genre> getGenres(Set<String> genres) {
+        Set<Genre> genreSet = new HashSet<>();
+        if (genres != null) {
+            for (String genre : genres) {
+                Genre genreObj = genreRepo.findByName(genre);
+                if (genreObj == null) {
+                    throw new ResourceNotFoundException("Genre does not exist with given name: " + genre);
+                }
+                genreSet.add(genreObj);
+            }
+        }
+        return genreSet;
+    }
+
+    private Set<Studio> getStudios(Set<String> studios) {
+        Set<Studio> studioSet = new HashSet<>();
+        if (studios != null) {
+            for (String studio : studios) {
+                Studio studioObj = studioRepo.findByName(studio);
+                if (studioObj == null) {
+                    throw new ResourceNotFoundException("Studio does not exist with given name: " + studio);
+                }
+                studioSet.add(studioObj);
+            }
+        }
+        return studioSet;
+    }
+
+    private Set<Tag> getTags(Set<String> tags) {
+        Set<Tag> tagSet = new HashSet<>();
+        if (tags != null) {
+            for (String tag : tags) {
+                Tag tagObj = tagRepo.findByName(tag);
+                if (tagObj == null) {
+                    throw new ResourceNotFoundException("Tag does not exist with given name: " + tag);
+                }
+                tagSet.add(tagObj);
+            }
+        }
+        return tagSet;
     }
 
 
@@ -65,13 +121,27 @@ public class AnimeService implements IAnimeService {
     public AnimeDto updateAnime(Long animeId, AnimeDto updatedAnime) {
         Anime anime = animeRepo.findById(animeId).orElseThrow(() -> new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
         anime.setTitle(updatedAnime.getTitle());
-        anime.setScore(updatedAnime.getScore());
+        anime.setSynopsis(updatedAnime.getSynopsis());
+        anime.setThumbnailURL(updatedAnime.getThumbnailURL());
+        anime.setPictureURL(updatedAnime.getPictureURL());
+        anime.setStartDate(updatedAnime.getStartDate());
+        anime.setEndDate(updatedAnime.getEndDate());
+        anime.setSynonyms(new ArrayList<>(updatedAnime.getSynonyms()));
+        anime.setType(updatedAnime.getType());
+        anime.setStatus(updatedAnime.getStatus());
+        anime.setAnimeSeason(updatedAnime.getAnimeSeason());
+
+        Set<Tag> tags = getTags(updatedAnime.getTags());
+        Set<Genre> genres = getGenres(updatedAnime.getGenres());
+        Set<Studio> studios = getStudios(updatedAnime.getStudios());
+
+        anime.setTags(tags);
+        anime.setGenres(genres);
+        anime.setStudios(studios);
 
         Anime updatedAnimeObj = animeRepo.save(anime);
 
-        Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
-
-        return AnimeMapper.mapToAnimeDto(updatedAnimeObj, numEpisodes);
+        return AnimeMapper.mapToAnimeDto(updatedAnimeObj);
     }
 
     @Override
@@ -87,19 +157,18 @@ public class AnimeService implements IAnimeService {
         CustomFaker faker = new CustomFaker();
         Anime anime = new Anime();
         anime.setTitle(faker.anime().nextAnimeTitle());
-        anime.setScore(faker.number().numberBetween(1,10));
+        anime.setScore((double) faker.number().numberBetween(1,10));
         anime.setUser(user);
 
         Anime savedAnime = animeRepo.save(anime);
-        return AnimeMapper.mapToAnimeDto(savedAnime, 0);
+        return AnimeMapper.mapToAnimeDto(savedAnime);
     }
 
     @Override
     public AnimeDto getAnimeByTitle(String title) {
 
         Anime anime = animeRepo.findByTitle(title);
-        Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
-        return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
+        return AnimeMapper.mapToAnimeDto(anime);
     }
 
     @Override
@@ -107,18 +176,18 @@ public class AnimeService implements IAnimeService {
         return animeRepo.findAllGroupByScore();
     }
 
-    @Override
-    public List<AnimeDto> getAnimeByGenre(String genre) {
-        Genre genreObj = genreRepo.findByName(genre);
-        if(genreObj == null){
-            throw new ResourceNotFoundException("Genre does not exist with given name: " + genre);
-        }
-        List<Anime> animeList = animeRepo.findByGenre(genreObj);
-        return animeList.stream().map((anime) -> {
-            Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
-            return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
-        }).collect(Collectors.toList());
-    }
+//    @Override
+//    public List<AnimeDto> getAnimeByGenre(String genre) {
+//        Type typeObj = genreRepo.findByName(genre);
+//        if(typeObj == null){
+//            throw new ResourceNotFoundException("Genre does not exist with given name: " + genre);
+//        }
+//        List<Anime> animeList = animeRepo.findByGenre(typeObj);
+//        return animeList.stream().map((anime) -> {
+//            Integer numEpisodes = episodeRepo.getEpisodesByAnime(anime).size();
+//            return AnimeMapper.mapToAnimeDto(anime, numEpisodes);
+//        }).collect(Collectors.toList());
+//    }
 
 //    @Override
 //    public AnimeDto getRandomAnime() {

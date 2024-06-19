@@ -8,10 +8,10 @@ public class UserMapper {
 
     public static User mapToUser(UserDto userDto){
 
-        return new User(userDto.getId(), userDto.getUsername(), userDto.getPassword(), userDto.getEmail(), userDto.getEnabled(), ERole.valueOf(userDto.getRole()));
+        return new User(userDto.getId(), userDto.getUsername(), userDto.getPassword(), userDto.getEmail(), userDto.getEnabled(), userDto.getJoinDate(), ERole.valueOf(userDto.getRole()));
     }
 
     public static UserDto mapToUserDto(User user){
-        return new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), user.getEnabled(), user.getRole().toString());
+        return new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), user.getEnabled(), user.getRole().toString(), user.getJoinDate());
     }
 }

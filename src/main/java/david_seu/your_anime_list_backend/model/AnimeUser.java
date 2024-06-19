@@ -1,11 +1,8 @@
 package david_seu.your_anime_list_backend.model;
 
-import david_seu.your_anime_list_backend.model.utils.AnimeUserId;
+import david_seu.your_anime_list_backend.model.utils.WatchStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Table(
         indexes = {
                 @Index(name = "anime_user_id_index", columnList = "user_id"),
@@ -25,26 +23,25 @@ import java.util.Date;
 )
 public class AnimeUser {
 
-    @EmbeddedId
-    private AnimeUserId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @MapsId("userId")
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    @MapsId("animeId")
     @ManyToOne
     @JoinColumn(name = "anime_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Anime anime;
 
-    private Integer score = -1;
+    private Double score = -1.0;
     private Boolean isFavorite = false;
 
     @Enumerated(EnumType.STRING)
-    private String status;
+    private WatchStatus status;
 
     private Date startDate;
     private Date endDate;

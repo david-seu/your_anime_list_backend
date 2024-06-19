@@ -22,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -43,23 +44,32 @@ public class AnimeController {
     private ScheduledFuture<?> scheduledTask;
 
     @GetMapping("/getAll")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<?>> getAllAnime(@RequestParam(required = false, defaultValue = "DESC") String sort, @RequestParam(required = false, defaultValue = "") String title, @RequestParam(required = false, defaultValue = "0") Integer page) {
+    public ResponseEntity<?> getAllAnime(@RequestParam(required = false, defaultValue = "0") Integer page,
+                                         @RequestParam(required = false, defaultValue = "desc") String sortDirection,
+                                         @RequestParam(required = false, defaultValue = "") String title,
+                                         @RequestParam(required = false) String season,
+                                         @RequestParam(required = false) Integer year,
+                                         @RequestParam(required = false) Set<String> genres,
+                                         @RequestParam(required = false) Set<String> tags,
+                                         @RequestParam(required = false) Set<String> studios,
+                                         @RequestParam(required = false) Set<String>     type,
+                                         @RequestParam(required = false) String status,
+                                         @RequestParam(required = false, defaultValue = "score") String orderBy) {
         try {
-            List<AnimeDto> animeList = animeService.getAllAnime(page, title, sort);
+            List<AnimeDto> animeList = animeService.getAllAnime(page, sortDirection, title, season, year, genres, tags, studios, type, status, orderBy);
             if (animeList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
             return new ResponseEntity<>(animeList, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
+
     @GetMapping("/get/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAnimeById(@PathVariable("id") Long animeId){
         try {
 

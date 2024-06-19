@@ -2,11 +2,7 @@ package david_seu.your_anime_list_backend.mapper;
 
 import david_seu.your_anime_list_backend.model.Review;
 import david_seu.your_anime_list_backend.payload.dto.ReviewDto;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 public class ReviewMapper {
 
 
@@ -25,7 +21,8 @@ public class ReviewMapper {
                 review.getTitle(),
                 review.getContent(),
                 review.getAnimeUser(),
-                review.getAnimeUser().getId()
+                review.getAnimeUser().getAnime().getId(),
+                review.getAnimeUser().getUser().getId()
         );
     }
 }

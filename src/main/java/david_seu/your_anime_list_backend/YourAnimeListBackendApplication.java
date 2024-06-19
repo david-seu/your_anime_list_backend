@@ -1,6 +1,6 @@
 package david_seu.your_anime_list_backend;
 
-import david_seu.your_anime_list_backend.service.IFakeDataService;
+import david_seu.your_anime_list_backend.service.IDataService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,9 +13,9 @@ public class YourAnimeListBackendApplication {
 		SpringApplication.run(YourAnimeListBackendApplication.class, args);
 	}
 
-	@Bean
-	public ApplicationRunner applicationRunner(IFakeDataService fakeDataService) {
-        return args -> fakeDataService.generateFakeData();
-	}
+//	@Bean
+//	public ApplicationRunner applicationRunner(IDataService dataService) {
+//        return args -> dataService.addAnimesFromJsonFileToDatabase();
+//	}
 
 }

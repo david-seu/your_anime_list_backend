@@ -1,7 +1,6 @@
 package david_seu.your_anime_list_backend.payload.dto;
 
 import david_seu.your_anime_list_backend.model.AnimeUser;
-import david_seu.your_anime_list_backend.model.utils.AnimeUserId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +20,8 @@ public class ReviewDto {
 
     private AnimeUser animeUser;
 
-    private AnimeUserId animeUserId;
+    private Long animeId;
+
+    private Long userId;
 
 }

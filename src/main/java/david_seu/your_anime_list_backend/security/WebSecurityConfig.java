@@ -68,6 +68,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                                 .requestMatchers("/api/anime/**").permitAll()
                                 .requestMatchers("/api/episode/**").permitAll()
                                 .requestMatchers("/api/user/**").permitAll()
+                                .requestMatchers("/api/animeUser/**").permitAll()
                                 .anyRequest().permitAll()
                 );
 

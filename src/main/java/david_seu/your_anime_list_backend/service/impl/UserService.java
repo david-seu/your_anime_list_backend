@@ -80,7 +80,6 @@ public class UserService implements IUserService {
         if (!user.getEnabled()) {
             throw new UserNotVerifiedException("Error: User not verified.");
         }
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -170,7 +169,8 @@ public class UserService implements IUserService {
         if (userRepo.existsByEmail(userDto.getEmail())) {
             throw new EmailAlreadyRegisteredException("Error: Email is already in use!");
         }
-
+        System.out.println(userDto.getPassword());
+        System.out.println(userDto.getUsername());
         userDto.setPassword(encoder.encode(userDto.getPassword()));
         User user = UserMapper.mapToUser(userDto);
 
