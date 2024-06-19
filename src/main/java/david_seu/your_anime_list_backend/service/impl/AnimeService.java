@@ -33,11 +33,32 @@ public class AnimeService implements IAnimeService {
     @Override
     public AnimeDto createAnime(AnimeDto animeDto) {
         Anime anime = AnimeMapper.mapToAnime(animeDto);
+        fillAnime(animeDto, anime);
         Anime savedAnime = animeRepo.save(anime);
         return AnimeMapper.mapToAnimeDto(savedAnime);
     }
 
-    private Anime fillAnime()
+    private void fillAnime(AnimeDto animeDto, Anime anime)
+    {
+        System.out.println("AnimeDto: " + animeDto);
+        AnimeSeason animeSeason = getAnimeSeason(animeDto.getAnimeSeason());
+        if(animeSeason == null)
+        {
+            animeSeason = animeSeasonRepo.save(animeDto.getAnimeSeason());
+            anime.setAnimeSeason(animeSeason);
+        }
+        else{
+            anime.setAnimeSeason(animeSeason);
+        }
+
+        Set<Tag> tags = getTags(animeDto.getTags());
+        Set<Genre> genres = getGenres(animeDto.getGenres());
+        Set<Studio> studios = getStudios(animeDto.getStudios());
+
+        anime.setTags(tags);
+        anime.setGenres(genres);
+        anime.setStudios(studios);
+    }
 
     @Override
     public AnimeDto getAnimeById(Long animeId) {
@@ -136,15 +157,8 @@ public class AnimeService implements IAnimeService {
         anime.setEndDate(updatedAnime.getEndDate());
         anime.setType(updatedAnime.getType());
         anime.setStatus(updatedAnime.getStatus());
-        anime.setAnimeSeason(getAnimeSeason(updatedAnime.getAnimeSeason()));
 
-        Set<Tag> tags = getTags(updatedAnime.getTags());
-        Set<Genre> genres = getGenres(updatedAnime.getGenres());
-        Set<Studio> studios = getStudios(updatedAnime.getStudios());
-
-        anime.setTags(tags);
-        anime.setGenres(genres);
-        anime.setStudios(studios);
+        fillAnime(updatedAnime, anime);
 
         Anime updatedAnimeObj = animeRepo.save(anime);
 

@@ -7,6 +7,7 @@ import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.model.Anime;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class AnimeMapper {
@@ -32,7 +33,8 @@ public class AnimeMapper {
             animeDto.setGenres(anime.getGenres().stream().map(Genre::getName).collect(Collectors.toSet()));
             animeDto.setStudios(anime.getStudios().stream().map(Studio::getName).collect(Collectors.toSet()));
             animeDto.setTags(anime.getTags().stream().map(Tag::getName).collect(Collectors.toSet()));
-            animeDto.setSynonyms(new HashSet<>(anime.getSynonyms()));
+            HashSet<String> synonyms = anime.getSynonyms() == null  ? new HashSet<>() : new HashSet<>(anime.getSynonyms());
+            animeDto.setSynonyms(synonyms);
             animeDto.setRelatedAnime(anime.getRelatedAnime());
             animeDto.setRecommendedAnime(anime.getRecommendedAnime());
             animeDto.setType(anime.getType());
@@ -42,7 +44,24 @@ public class AnimeMapper {
             return animeDto;
     }
     public static Anime mapToAnime(AnimeDto animeDto){
-//        return new Anime(animeDto.getId(), animeDto.getTitle(), animeDto.getSynopsis(), animeDto.getScore(), animeDto.getPopularity(), animeDto.getNrEpisodes(), animeDto.getPictureURL(), animeDto.getThumbnailURL(), animeDto.getStartDate(), animeDto.getEndDate(), animeDto.getWatching(), animeDto.getCompleted(), animeDto.getOnHold(), animeDto.getDropped(), animeDto.getPlanToWatch(), animeDto.getMalId(), animeDto.getGenres(), animeDto.getStudios(), animeDto.getTags(), animeDto.getSynonyms(), animeDto.getRelatedAnime(), animeDto.getRecommendedAnime(), animeDto.getType(), animeDto.getUser(), animeDto.getStatus(), animeDto.getAnimeSeason());
-        return new Anime();
+        Anime anime = new Anime();
+        anime.setTitle(animeDto.getTitle());
+        anime.setSynopsis(animeDto.getSynopsis());
+        anime.setScore(animeDto.getScore());
+        anime.setPopularity(animeDto.getPopularity());
+        anime.setNrEpisodes(animeDto.getNrEpisodes());
+        anime.setPictureURL(animeDto.getPictureURL());
+        anime.setThumbnailURL(animeDto.getThumbnailURL());
+        anime.setStartDate(animeDto.getStartDate());
+        anime.setEndDate(animeDto.getEndDate());
+        anime.setWatching(animeDto.getWatching());
+        anime.setCompleted(animeDto.getCompleted());
+        anime.setOnHold(animeDto.getOnHold());
+        anime.setDropped(animeDto.getDropped());
+        anime.setPlanToWatch(animeDto.getPlanToWatch());
+        anime.setType(animeDto.getType());
+        anime.setStatus(animeDto.getStatus());
+        anime.setUser(animeDto.getUser());
+        return anime;
     }
 }

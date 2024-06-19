@@ -63,6 +63,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto signUp(UserDto userDto) {
+        userDto.setJoinDate(new Date());
         UserDto savedUserDto = addUser(userDto);
         sendVerificationEmail(UserMapper.mapToUser(savedUserDto));
         return savedUserDto;
