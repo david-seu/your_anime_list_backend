@@ -111,7 +111,7 @@ public class AnimeController {
         }
         catch (ResourceNotFoundException e)
         {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(animeDto, HttpStatus.OK);
     }

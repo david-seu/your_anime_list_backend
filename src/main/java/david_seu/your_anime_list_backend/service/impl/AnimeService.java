@@ -37,6 +37,8 @@ public class AnimeService implements IAnimeService {
         return AnimeMapper.mapToAnimeDto(savedAnime);
     }
 
+    private Anime fillAnime()
+
     @Override
     public AnimeDto getAnimeById(Long animeId) {
         Anime anime = animeRepo.findById(animeId).
@@ -88,6 +90,11 @@ public class AnimeService implements IAnimeService {
         return genreSet;
     }
 
+    private AnimeSeason getAnimeSeason(AnimeSeason animeSeason)
+    {
+        return animeSeasonRepo.findByYearAndSeason(animeSeason.getYear(), animeSeason.getSeason());
+    }
+
     private Set<Studio> getStudios(Set<String> studios) {
         Set<Studio> studioSet = new HashSet<>();
         if (studios != null) {
@@ -119,6 +126,7 @@ public class AnimeService implements IAnimeService {
 
     @Override
     public AnimeDto updateAnime(Long animeId, AnimeDto updatedAnime) {
+        System.out.println("Updated anime: " + updatedAnime);
         Anime anime = animeRepo.findById(animeId).orElseThrow(() -> new ResourceNotFoundException("Anime does not exist with given id: " + animeId));
         anime.setTitle(updatedAnime.getTitle());
         anime.setSynopsis(updatedAnime.getSynopsis());
@@ -126,10 +134,9 @@ public class AnimeService implements IAnimeService {
         anime.setPictureURL(updatedAnime.getPictureURL());
         anime.setStartDate(updatedAnime.getStartDate());
         anime.setEndDate(updatedAnime.getEndDate());
-        anime.setSynonyms(new ArrayList<>(updatedAnime.getSynonyms()));
         anime.setType(updatedAnime.getType());
         anime.setStatus(updatedAnime.getStatus());
-        anime.setAnimeSeason(updatedAnime.getAnimeSeason());
+        anime.setAnimeSeason(getAnimeSeason(updatedAnime.getAnimeSeason()));
 
         Set<Tag> tags = getTags(updatedAnime.getTags());
         Set<Genre> genres = getGenres(updatedAnime.getGenres());
