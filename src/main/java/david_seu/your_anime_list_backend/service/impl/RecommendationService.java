@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @AllArgsConstructor
@@ -19,6 +20,7 @@ public class RecommendationService implements IRecommendationService {
 
     private final IAnimeRepo animeRepo;
 
+
     @Override
     public List<AnimeDto> getRecommendations(String title) {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://127.0.0.1:5000/recommend")
@@ -27,7 +29,7 @@ public class RecommendationService implements IRecommendationService {
                 .encode()
                 .toUri();
     
-        String[] recommendations = restTemplate.getForObject(url, String[].class);
+        String[] recommendations = restTemplate.getForObject(uri, String[].class);
 
         return animeRepo.findByTitleIn(recommendations).stream().map(AnimeMapper::mapToAnimeDto).toList();
     }
