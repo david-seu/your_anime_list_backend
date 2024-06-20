@@ -18,6 +18,7 @@ import david_seu.your_anime_list_backend.service.IAnimeService;
 import david_seu.your_anime_list_backend.service.IDataService;
 import david_seu.your_anime_list_backend.service.IUserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -43,6 +44,7 @@ public class DataService implements IDataService {
     ITagRepo tagRepo;
     IGenreRepo genreRepo;
     IStudioRepo studioRepo;
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void generateFakeData() throws IOException, URISyntaxException {
@@ -330,12 +332,12 @@ public class DataService implements IDataService {
     public void addUser()
     {
         User user = new User();
-        user.setUsername("admin");
+        user.setUsername("zyk3l");
         user.setEmail("seu21@outlook.com");
-        user.setPassword("admin");
+        user.setPassword(passwordEncoder.encode("bomba"));
         user.setEnabled(true);
+        user.setJoinDate(new Date());
         user.setRole(ERole.ROLE_ADMIN);
-        userRepo.save(user);
     }
 
     public void addRecommendedAnimeAndRelatedAnime()

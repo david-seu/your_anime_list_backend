@@ -12,7 +12,7 @@ public class YourAnimeListBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(YourAnimeListBackendApplication.class, args);
 	}
-
+//
 //	@Bean
 //	public ApplicationRunner applicationRunner(IDataService dataService) {
 //        return args -> dataService.addAnimesFromJsonFileToDatabase();
