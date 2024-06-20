@@ -10,6 +10,12 @@ public class AnimeUserMapper {
     }
 
     public static AnimeUser mapToAnimeUser(AnimeUserDto animeUserDto){
-        return new AnimeUser(animeUserDto.getId(), animeUserDto.getUser(), AnimeMapper.mapToAnime(animeUserDto.getAnime()), animeUserDto.getScore(), animeUserDto.getIsFavorite(), animeUserDto.getStatus(), animeUserDto.getStartDate(), animeUserDto.getEndDate());
+        AnimeUser animeUser = new AnimeUser();
+        animeUser.setScore(animeUserDto.getScore());
+        animeUser.setIsFavorite(animeUserDto.getIsFavorite());
+        animeUser.setStatus(animeUserDto.getStatus());
+        animeUser.setStartDate(animeUserDto.getStartDate());
+        animeUser.setEndDate(animeUserDto.getEndDate());
+        return animeUser;
     }
 }

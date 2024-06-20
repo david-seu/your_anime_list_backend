@@ -38,6 +38,7 @@ public class AnimeUserService implements IAnimeUserService {
         }
         Anime anime = animeRepo.findById(animeUserDto.getAnimeId()).orElseThrow(() -> new InvalidAnimeException("Anime does not exist with given id: " + animeUserDto.getAnimeId()));
         User user = userRepo.findById(animeUserDto.getUserId()).orElseThrow(() -> new InvalidAnimeException("User does not exist with given id: " + animeUserDto.getUserId()));
+        System.out.println(animeUserDto);
         AnimeUser animeUser = AnimeUserMapper.mapToAnimeUser(animeUserDto);
         animeUser.setAnime(anime);
         animeUser.setUser(user);
