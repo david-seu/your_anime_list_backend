@@ -7,6 +7,7 @@ import david_seu.your_anime_list_backend.payload.dto.AnimeDto;
 import david_seu.your_anime_list_backend.exception.ResourceNotFoundException;
 import david_seu.your_anime_list_backend.security.service.impl.UserDetailsImpl;
 import david_seu.your_anime_list_backend.service.IAnimeService;
+import david_seu.your_anime_list_backend.service.IRecommendationService;
 import david_seu.your_anime_list_backend.service.IUserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,19 @@ public class AnimeController {
     private final TaskScheduler taskScheduler;
 
     private ScheduledFuture<?> scheduledTask;
+
+    @NonNull
+    private IRecommendationService recommendationService;
+
+    @GetMapping("/recommend")
+    public ResponseEntity<?> getRecommendations(@RequestParam String title) {
+        try {
+            List<AnimeDto> recommendations = recommendationService.getRecommendations(title);
+            return new ResponseEntity<>(recommendations, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/getAll")
     public ResponseEntity<?> getAllAnime(@RequestParam(required = false, defaultValue = "0") Integer page,

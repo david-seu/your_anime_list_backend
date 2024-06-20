@@ -25,4 +25,6 @@ public interface IAnimeRepo extends JpaRepository<Anime, Long>, JpaSpecification
     Anime findByMalId(Integer malId);
 
     List<Anime> findByType(Type type);
+
+    List<Anime> findByTitleIn(String[] titles);
 }
