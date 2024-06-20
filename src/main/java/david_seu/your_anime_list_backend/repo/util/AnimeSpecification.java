@@ -4,7 +4,8 @@ import david_seu.your_anime_list_backend.model.*;
 import david_seu.your_anime_list_backend.model.utils.AnimeStatus;
 import david_seu.your_anime_list_backend.model.utils.Type;
 import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -14,7 +15,7 @@ public class AnimeSpecification {
 
     public static Specification<Anime> filterByAttributes(
             String title,
-            AnimeSeason animeSeason,
+            Set<AnimeSeason> animeSeason,
             Set<Genre> genres,
             Set<Tag> tags,
             Set<Studio> studios,
@@ -24,26 +25,30 @@ public class AnimeSpecification {
             boolean asc) {
 
         return (root, query, criteriaBuilder) -> {
+
             Predicate predicate = criteriaBuilder.conjunction();
 
             if (title != null && !title.isEmpty()) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
             }
 
-            if (animeSeason != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("animeSeason"), animeSeason));
+            if (animeSeason != null && !animeSeason.isEmpty()) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.and(root.get("animeSeason").in(animeSeason)));
             }
 
             if (genres != null && !genres.isEmpty()) {
-                predicate = criteriaBuilder.and(predicate, root.get("genres").in(genres));
+                Join<Anime, Genre> genreJoin = root.join("genres", JoinType.LEFT);
+                predicate = criteriaBuilder.and(predicate, genreJoin.in(genres));
             }
 
             if (tags != null && !tags.isEmpty()) {
-                predicate = criteriaBuilder.and(predicate, root.get("tags").in(tags));
+                Join<Anime, Tag> tagJoin = root.join("tags", JoinType.LEFT);
+                predicate = criteriaBuilder.and(predicate, tagJoin.in(tags));
             }
 
             if (studios != null && !studios.isEmpty()) {
-                predicate = criteriaBuilder.and(predicate, root.get("studios").in(studios));
+                Join<Anime, Studio> studioJoin = root.join("studios", JoinType.LEFT);
+                predicate = criteriaBuilder.and(predicate, studioJoin.in(studios));
             }
 
             if (type != null) {
@@ -57,7 +62,7 @@ public class AnimeSpecification {
             // Custom sorting with nulls last
             if (sortBy != null) {
                 Expression<?> sortExpression = root.get(sortBy);
-                if(sortBy.equals("score")){
+                if (sortBy.equals("score")) {
                     Predicate isNotNull = criteriaBuilder.isNotNull(sortExpression);
                     if (asc) {
                         query.orderBy(criteriaBuilder.asc(criteriaBuilder.selectCase()
@@ -68,9 +73,7 @@ public class AnimeSpecification {
                                 .when(isNotNull, sortExpression)
                                 .otherwise(criteriaBuilder.literal(Integer.MIN_VALUE))));
                     }
-                }
-                else
-                {
+                } else {
                     if (asc) {
                         query.orderBy(
                                 criteriaBuilder.asc(
@@ -80,8 +83,7 @@ public class AnimeSpecification {
                                 ),
                                 criteriaBuilder.asc(sortExpression)
                         );
-                    }
-                    else {
+                    } else {
                         query.orderBy(
                                 criteriaBuilder.asc(
                                         criteriaBuilder.selectCase()
@@ -92,8 +94,6 @@ public class AnimeSpecification {
                         );
                     }
                 }
-
-
             }
             return predicate;
         };

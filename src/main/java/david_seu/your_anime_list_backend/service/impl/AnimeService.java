@@ -70,24 +70,56 @@ public class AnimeService implements IAnimeService {
 
     @Override
     public List<AnimeDto> getAllAnime(Integer page, String sortDirection, String title, String season, Integer year, Set<String> genres, Set<String> tags, Set<String> studios, Set<String> type, String status, String orderBy) {
-        AnimeSeason animeSeason = null;
-        if (season != null && year != null) {
-            animeSeason = animeSeasonRepo.findByYearAndSeason(year, Season.valueOf(season));
-            if (animeSeason == null) {
+        Set<AnimeSeason> animeSeason = new HashSet<>();
+        if (season != null && !season.isEmpty() && year != null) {
+            AnimeSeason obj = animeSeasonRepo.findByYearAndSeason(year, Season.valueOf(season));
+            if (obj == null) {
                 throw new ResourceNotFoundException("Anime season does not exist with given year: " + year + " and season: " + season);
             }
+            animeSeason.add(obj);
+        }
+        else if((season == null || season.isEmpty()) && year != null)
+        {
+            Set<String> seasons = Arrays.stream(Season.values()).map(Enum::name).collect(Collectors.toSet());
+            for(String s : seasons)
+            {
+                AnimeSeason obj = animeSeasonRepo.findByYearAndSeason(year, Season.valueOf(s));
+                if(obj != null)
+                {
+                    animeSeason.add(obj);
+                }
+            }
+        }
+        else if(season != null && !season.isEmpty())
+        {
+            year = Calendar.getInstance().get(Calendar.YEAR);
+            AnimeSeason obj = animeSeasonRepo.findByYearAndSeason(year, Season.valueOf(season));
+            if (obj == null) {
+                throw new ResourceNotFoundException("Anime season does not exist with given year: " + year + " and season: " + season);
+            }
+            animeSeason.add(obj);
         }
 
-        Set<Type> typeObj = type == null ? null : type.stream().map(Type::valueOf).collect(Collectors.toSet());
-        AnimeStatus statusObj = status == null ? null : AnimeStatus.valueOf(status);
+        Set<Type> typeObj = type == null ? null : type.stream().map(String::toUpperCase).map(Type::valueOf).collect(Collectors.toSet());
+
+        AnimeStatus statusObj = (status == null || status.isEmpty()) ? null : AnimeStatus.valueOf(status);
 
         Set<Genre> genreSet = getGenres(genres);
         Set<Tag> tagSet = getTags(tags);
         Set<Studio> studioSet = getStudios(studios);
 
         orderBy = orderBy == null ? "score" : orderBy;
-
         try {
+            System.out.println("Filtering by attributes");
+            System.out.println("Title: " + title);
+            System.out.println("AnimeSeason: " + animeSeason);
+            System.out.println("Genres: " + genreSet);
+            System.out.println("Tags: " + tagSet);
+            System.out.println("Studios: " + studioSet);
+            System.out.println("Type: " + typeObj);
+            System.out.println("Status: " + statusObj);
+            System.out.println("OrderBy: " + orderBy);
+            System.out.println("SortDirection: " + sortDirection);
             List<Anime> animeList = animeRepo.findAll(AnimeSpecification.filterByAttributes(title, animeSeason, genreSet, tagSet, studioSet, typeObj, statusObj, orderBy, sortDirection.equals("asc")), PageRequest.of(page, 50)).getContent();
             return animeList.stream().map(AnimeMapper::mapToAnimeDto).collect(Collectors.toList());
         }
@@ -101,7 +133,7 @@ public class AnimeService implements IAnimeService {
         Set<Genre> genreSet = new HashSet<>();
         if (genres != null) {
             for (String genre : genres) {
-                Genre genreObj = genreRepo.findByName(genre);
+                Genre genreObj = genreRepo.findFirstByNameIgnoreCase(genre);
                 if (genreObj == null) {
                     throw new ResourceNotFoundException("Genre does not exist with given name: " + genre);
                 }
@@ -120,7 +152,7 @@ public class AnimeService implements IAnimeService {
         Set<Studio> studioSet = new HashSet<>();
         if (studios != null) {
             for (String studio : studios) {
-                Studio studioObj = studioRepo.findByName(studio);
+                Studio studioObj = studioRepo.findFirstByNameIgnoreCase(studio);
                 if (studioObj == null) {
                     throw new ResourceNotFoundException("Studio does not exist with given name: " + studio);
                 }
@@ -134,7 +166,7 @@ public class AnimeService implements IAnimeService {
         Set<Tag> tagSet = new HashSet<>();
         if (tags != null) {
             for (String tag : tags) {
-                Tag tagObj = tagRepo.findByName(tag);
+                Tag tagObj = tagRepo.findFirstByNameIgnoreCase(tag);
                 if (tagObj == null) {
                     throw new ResourceNotFoundException("Tag does not exist with given name: " + tag);
                 }

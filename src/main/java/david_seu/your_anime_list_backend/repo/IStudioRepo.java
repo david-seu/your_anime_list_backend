@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IStudioRepo extends JpaRepository<Studio, Long> {
 
-    Studio findByName(String name);
+    Studio findFirstByNameIgnoreCase(String name);
 }

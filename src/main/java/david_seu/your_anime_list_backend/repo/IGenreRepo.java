@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IGenreRepo extends JpaRepository<Genre, Long> {
 
-        Genre findByName(String name);
+        Genre findFirstByNameIgnoreCase(String name);
 }
