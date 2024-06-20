@@ -23,7 +23,7 @@ public class RecommendationService implements IRecommendationService {
 
     @Override
     public List<AnimeDto> getRecommendations(String title) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://127.0.0.1:5000/recommend")
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://anime-recommendation-api.onrender.com/recommend")
                 .queryParam("title", title)
                 .build()
                 .encode()
